@@ -1,0 +1,548 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Linux SCSI Fault Injection | Tada!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Zijie0">
+    
+    <meta name="description" itemprop="description" content="第一篇博客，介绍了如何在Linux环境中使用libfiu，Kernel Fault Injection Infrastructure，SystemTap等工具做用户/内核级别的错误注入。">
+    
+    
+    
+    
+    <link rel="alternative" href="/atom.xml" title="Tada!" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Tada!" title="Tada!"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Tada!">Tada!</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Main</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="Search" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/06/05/linux-scsi-fault-injection/" title="Linux SCSI Fault Injection" itemprop="url">Linux SCSI Fault Injection</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="http://zijie0.github.io/about" title="Zijie0" target="_blank" itemprop="author">Zijie0</a>
+		
+  <p class="article-time">
+    <time datetime="2014-06-05T01:22:12.000Z" itemprop="datePublished"> Published Jun 5 2014</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#libfiu"><span class="toc-number">1.</span> <span class="toc-text">libfiu</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#简介"><span class="toc-number">1.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装"><span class="toc-number">1.2.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用"><span class="toc-number">1.3.</span> <span class="toc-text">使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">1.4.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fsdisk"><span class="toc-number">2.</span> <span class="toc-text">fsdisk</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_Kernel_fault_injection_infrastructure"><span class="toc-number">3.</span> <span class="toc-text">Linux Kernel fault injection infrastructure</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#简介-1"><span class="toc-number">3.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置"><span class="toc-number">3.2.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用-1"><span class="toc-number">3.3.</span> <span class="toc-text">使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结-1"><span class="toc-number">3.4.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SystemTap"><span class="toc-number">4.</span> <span class="toc-text">SystemTap</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#简介-2"><span class="toc-number">4.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置-1"><span class="toc-number">4.2.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用-2"><span class="toc-number">4.3.</span> <span class="toc-text">使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#工作原理"><span class="toc-number">4.4.</span> <span class="toc-text">工作原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SCSI错误类型"><span class="toc-number">4.5.</span> <span class="toc-text">SCSI错误类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结-2"><span class="toc-number">4.6.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#未来"><span class="toc-number">5.</span> <span class="toc-text">未来</span></a></li></ol>
+		
+		</div>
+		
+		<p>由于在内核测试中需要验证一些容灾故障场景，所以研究了一下Linux下的错误注入方法。目前我们的测试脚本中只用了些非常原始粗暴的命令如去移除scsi device，感觉很不专业！搜索了下万能的谷歌，找到了一篇质量很高的<a href="http://stackoverflow.com/questions/1361518/how-can-i-simulate-a-failed-disk-during-testing" target="_blank" rel="external">StackOverflow回答</a>！然后就是逐项尝试了：</p>
+<h2 id="libfiu">libfiu</h2>
+<h3 id="简介">简介</h3>
+<p><a href="https://github.com/albertito/libfiu" target="_blank" rel="external">libfiu</a>是一个开源的C语言库，可以直接用在项目中添加可控制的错误注入点，也可以直接用它提供的共享库来做<code>POSIX API</code>的错误注入（无需修改已有代码）。从文档来看<code>fiu-run</code>和<code>fiu-ctrl</code>使用起来挺方便的，就照样子试一下吧！</p>
+<h3 id="安装">安装</h3>
+<p>下载源码，解压，然后</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ make && <span class="built_in">sudo</span> make install</div></pre></td></tr></table></figure>
+
+<p>没什么特别的，另外还可以安装python binding</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ make python2 && <span class="built_in">sudo</span> make python2_install</div></pre></td></tr></table></figure>
+
+<p>首次运行如果提示找不到so文件可以跑一下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">sudo</span> ldconfig</div></pre></td></tr></table></figure>
+
+<h3 id="使用">使用</h3>
+<p>直接用文档里的例子来看。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ fiu-run -x -c <span class="string">"enable_random name=posix/io/rw/read,probability=1"</span> cat test_fault_injection </div><div class="line">cat: test_fault_injection: File descriptor <span class="keyword">in</span> bad state</div></pre></td></tr></table></figure>
+
+<p>有趣的是重复执行它出来的错误还不一样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ fiu-run -x -c <span class="string">"enable_random name=posix/io/rw/read,probability=1"</span> cat test_fault_injection </div><div class="line">cat: test_fault_injection: Is a directory</div><div class="line"> </div><div class="line">$ fiu-run -x -c <span class="string">"enable_random name=posix/io/rw/read,probability=1"</span> cat test_fault_injection </div><div class="line">cat: test_fault_injection: Value too large <span class="keyword">for</span> defined data <span class="built_in">type</span></div></pre></td></tr></table></figure>
+
+<p>来用strace看一下</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="number">15</span>:<span class="number">02</span>:<span class="number">53.637634</span> clone(Process <span class="number">10821</span> attached child_stack=<span class="number">0x41310240</span>, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, parent_tidptr=<span class="number">0x413109d0</span>, tls=<span class="number">0x41310940</span>, child_tidptr=<span class="number">0x413109d0</span>) = <span class="number">10821</span> &lt;<span class="number">0.000064</span>&gt;</div><div class="line"><span class="keyword">...</span></div><div class="line">[pid <span class="number">10821</span>] <span class="number">15</span>:<span class="number">02</span>:<span class="number">53.638372</span> open(<span class="string">"/tmp/fiu-ctrl-10820.in"</span>, O_RDONLY &lt;unfinished <span class="keyword">...</span>&gt;</div><div class="line">[pid <span class="number">10820</span>] <span class="number">15</span>:<span class="number">02</span>:<span class="number">53.638433</span> mmap(<span class="literal">NULL</span>, <span class="number">56408368</span>, PROT_READ, MAP_PRIVATE, <span class="number">3</span>, <span class="number">0</span>) = <span class="number">0x7ffc9c686000</span> &lt;<span class="number">0.000035</span>&gt;</div><div class="line">[pid <span class="number">10820</span>] <span class="number">15</span>:<span class="number">02</span>:<span class="number">53.639478</span> close(<span class="number">3</span>)    = <span class="number">0</span> &lt;<span class="number">0.000028</span>&gt;</div><div class="line">[pid <span class="number">10820</span>] <span class="number">15</span>:<span class="number">02</span>:<span class="number">53.639684</span> fstat(<span class="number">1</span>, {st_mode=S_IFCHR|<span class="number">0620</span>, st_rdev=makedev(<span class="number">136</span>, <span class="number">0</span>), <span class="keyword">...</span>}) = <span class="number">0</span> &lt;<span class="number">0.000026</span>&gt;</div><div class="line">[pid <span class="number">10820</span>] <span class="number">15</span>:<span class="number">02</span>:<span class="number">53.639835</span> open(<span class="string">"test_fault_injection"</span>, O_RDONLY) = <span class="number">3</span> &lt;<span class="number">0.007911</span>&gt;</div><div class="line">[pid <span class="number">10820</span>] <span class="number">15</span>:<span class="number">02</span>:<span class="number">53.647831</span> fstat(<span class="number">3</span>, {st_mode=S_IFREG|<span class="number">0664</span>, st_size=<span class="number">130</span>, <span class="keyword">...</span>}) = <span class="number">0</span> &lt;<span class="number">0.000020</span>&gt;</div><div class="line">[pid <span class="number">10820</span>] <span class="number">15</span>:<span class="number">02</span>:<span class="number">53.648029</span> write(<span class="number">2</span>, <span class="string">"cat: "</span>, 5cat: ) = <span class="number">5</span> &lt;<span class="number">0.000023</span>&gt;</div><div class="line">[pid <span class="number">10820</span>] <span class="number">15</span>:<span class="number">02</span>:<span class="number">53.648123</span> write(<span class="number">2</span>, <span class="string">"test_fault_injection"</span>, 20test_fault_injection) = <span class="number">20</span> &lt;<span class="number">0.000022</span>&gt;</div><div class="line"><span class="keyword">...</span></div><div class="line">[pid <span class="number">10820</span>] <span class="number">15</span>:<span class="number">02</span>:<span class="number">53.649916</span> write(<span class="number">2</span>, <span class="string">": Invalid argument"</span>, <span class="number">18</span>: Invalid argument) = <span class="number">18</span> &lt;<span class="number">0.000021</span>&gt;</div><div class="line">[pid <span class="number">10820</span>] <span class="number">15</span>:<span class="number">02</span>:<span class="number">53.650022</span> write(<span class="number">2</span>, <span class="string">"\n"</span>, <span class="number">1</span>) = <span class="number">1</span> &lt;<span class="number">0.000022</span>&gt;</div></pre></td></tr></table></figure>
+
+<p>好像看不出所以然……大致看了下源码，感觉应该是直接fork了一个thread然后在这个thread中设置了注入的错误。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">exit_fail:</div><div class="line">    pthread_setspecific(last_failinfo_key,</div><div class="line">            pf-&gt;failinfo);</div><div class="line">    failnum = pf-&gt;failnum;</div><div class="line"> </div><div class="line">    <span class="keyword">if</span> (pf-&gt;flags & FIU_ONETIME) {</div><div class="line">        pf-&gt;failed_once = <span class="keyword">true</span>;</div><div class="line">        pthread_mutex_unlock(&pf-&gt;lock);</div><div class="line">    }</div><div class="line"> </div><div class="line">    ef_runlock();</div><div class="line">    rec_count--;</div><div class="line">    <span class="keyword">return</span> failnum;</div></pre></td></tr></table></figure>
+
+<p>作为C语言和Linux系统编程小白，艰难地读了这个项目的代码，感觉还是挺有趣的。他写了个python脚本从man page中获取libc和posix中各种API的错误返回等信息，然后再通过这些信息来生成wrapper代码。恩，等我读了<strong>APUE</strong>再来细细学习研究！</p>
+<p>在<a href="http://blitiri.com.ar/p/libfiu/doc/posix.html" target="_blank" rel="external">文档</a>中还有一个<code>fiu-run</code>和<code>fiu-ctrl</code>配合使top命令输出为空的例子，体现了这个工具的灵活性。另外在<a href="https://github.com/albertito/libjio/tree/master/tests/stress" target="_blank" rel="external">libjio</a>项目中有使用它的python binding来做一些测试的实例，值得学习！</p>
+<h3 id="总结">总结</h3>
+<p>主要优势就是简单好用，不用改代码就可以跑了！还提供python的接口。缺点就是它是跑在user space的，而我们主要是想测试kernel本身的稳定性……唔</p>
+<h2 id="fsdisk">fsdisk</h2>
+<p>这个项目的主页在<a href="http://www.thirdmartini.com/index.php/Linux_Disk_Failure_Simulation_Driver" target="_blank" rel="external">这里</a>。用谷歌一搜基本都是问是不是要找<code>fdisk</code>，好像没什么别人用啊，对于Linux下的驱动还不太了解，所以目前还没有试用它。有兴趣的同学可以按照项目文档用用看。看起来还是满足我们的需要的，只是不清楚它本身会不会带来一些bug之类的问题。</p>
+<h2 id="Linux_Kernel_fault_injection_infrastructure">Linux Kernel fault injection infrastructure</h2>
+<h3 id="简介-1">简介</h3>
+<p>这个是merge进主干内核的项目，所以质量应该还是有保证的，<a href="https://www.kernel.org/doc/Documentation/fault-injection/fault-injection.txt" target="_blank" rel="external">文档地址</a>。</p>
+<h3 id="配置">配置</h3>
+<p>用这个工具的最大问题是要在内核里打开它然后重新编译安装。下载完源码之后修改<code>.config</code>文件中的如下部分：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">CONFIG_FAULT_INJECTION=y</div><div class="line">CONFIG_FAILSLAB=y</div><div class="line">CONFIG_FAIL_PAGE_ALLOC=y</div><div class="line">CONFIG_FAIL_MAKE_REQUEST=y</div><div class="line">CONFIG_FAIL_IO_TIMEOUT=y</div><div class="line">CONFIG_FAULT_INJECTION_DEBUG_FS=y</div></pre></td></tr></table></figure>
+
+<p>然后编译安装内核，修改grub，重启系统</p>
+<p>起来之后mount一下debugfs</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">sudo</span> mount -t debugfs none /sys/kernel/debug/</div></pre></td></tr></table></figure>
+
+<p>看看<code>/sys/kernel/debug</code>下各种fail*的目录有没有出现，有了应该就是配置成功啦！</p>
+<h3 id="使用-1">使用</h3>
+<p>让我们来试用感受一下高大上的原生错误注入！写了个土土的python脚本模拟文件写入动作：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"> </div><div class="line">raw_input(<span class="string">'press enter to continue'</span>)</div><div class="line">f = open(<span class="string">'test_fault_injection.txt'</span>, <span class="string">'w'</span>)</div><div class="line"><span class="keyword">for</span> x <span class="keyword">in</span> xrange(<span class="number">0</span>, <span class="number">1000</span>):</div><div class="line">    f.write(<span class="string">"test fault injection\n"</span>)</div><div class="line">    f.flush()</div><div class="line">    time.sleep(<span class="number">1</span>)</div><div class="line"> </div><div class="line">f.close()</div></pre></td></tr></table></figure>
+
+<p>原生的fault injection控制粒度只能精确到device+pid 配置方法如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /sys/kernel/debug/fail_make_request</div><div class="line">$ <span class="built_in">echo</span> Y | <span class="built_in">sudo</span> tee task-filter       <span class="comment"># 开启pid过滤</span></div><div class="line">$ <span class="built_in">echo</span> -<span class="number">1</span> | <span class="built_in">sudo</span> tee times            <span class="comment"># 错误注入次数，-1表示无限</span></div><div class="line">$ <span class="built_in">echo</span> <span class="number">10</span> | <span class="built_in">sudo</span> tee interval         <span class="comment"># 错误注入的间隔，比如每5秒1次</span></div><div class="line">$ <span class="built_in">echo</span> <span class="number">100</span> | <span class="built_in">sudo</span> tee probability     <span class="comment"># 错误注入的概率，范围从0到100</span></div><div class="line">$ <span class="built_in">echo</span> <span class="number">2</span> | <span class="built_in">sudo</span> tee verbose           <span class="comment"># 输出log的级别，范围0到2</span></div></pre></td></tr></table></figure>
+
+<p>接下来就是开启错误注入的激动人心时刻！</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">echo</span> <span class="number">1</span> | <span class="built_in">sudo</span> tee /sys/block/sda/sda2/make-it-fail</div><div class="line">$ <span class="built_in">echo</span> <span class="number">1</span> | <span class="built_in">sudo</span> tee /proc/<span class="number">14255</span>/make-it-fail</div></pre></td></tr></table></figure>
+
+<p>在我的测试中写到第554行脚本就挂了，报Input/output error</p>
+<p>查看一下<code>/var/log/messages</code>日志：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">FAULT_INJECTION: forcing a failure</div><div class="line">Pid: <span class="number">14255</span>, comm: python Not tainted <span class="number">2.6</span><span class="number">.32</span>-<span class="number">358.23</span><span class="number">.2</span>.ali_zijie.el5.x86_64</div><div class="line">Call Trace:</div><div class="line"> <span class="annotation">[&lt;ffffffff8126dc06&gt;]</span> ? should_fail+<span class="number">0xd6</span>/<span class="number">0x130</span></div><div class="line"> <span class="annotation">[&lt;ffffffff8123cb8f&gt;]</span> ? generic_make_request+<span class="number">0x19f</span>/<span class="number">0x480</span></div><div class="line"> <span class="annotation">[&lt;ffffffff8123cee9&gt;]</span> ? submit_bio+<span class="number">0x79</span>/<span class="number">0x120</span></div><div class="line"> <span class="annotation">[&lt;ffffffff811ad483&gt;]</span> ? submit_bh+<span class="number">0x103</span>/<span class="number">0x180</span></div><div class="line"> <span class="annotation">[&lt;ffffffff811b0083&gt;]</span> ? __sync_dirty_buffer+<span class="number">0x53</span>/<span class="number">0xe0</span></div><div class="line"> <span class="annotation">[&lt;ffffffff811b0123&gt;]</span> ? sync_dirty_buffer+<span class="number">0x13</span>/<span class="number">0x20</span></div><div class="line"> <span class="annotation">[&lt;ffffffffa00cb604&gt;]</span> ? journal_dirty_data+<span class="number">0x114</span>/<span class="number">0x210</span> [jbd]</div><div class="line"> <span class="annotation">[&lt;ffffffffa00e40f4&gt;]</span> ? ext3_journal_dirty_data+<span class="number">0x24</span>/<span class="number">0x60</span> [ext3]</div><div class="line"> <span class="annotation">[&lt;ffffffffa00e4a8c&gt;]</span> ? journal_dirty_data_fn+<span class="number">0x1c</span>/<span class="number">0x30</span> [ext3]</div><div class="line"> <span class="annotation">[&lt;ffffffffa00e3a86&gt;]</span> ? walk_page_buffers+<span class="number">0x56</span>/<span class="number">0xa0</span> [ext3]</div><div class="line"> <span class="annotation">[&lt;ffffffffa00e4a70&gt;]</span> ? journal_dirty_data_fn+<span class="number">0x0</span>/<span class="number">0x30</span> [ext3]</div><div class="line"> <span class="annotation">[&lt;ffffffffa00e8529&gt;]</span> ? ext3_ordered_write_end+<span class="number">0xa9</span>/<span class="number">0x1a0</span> [ext3]</div><div class="line"> <span class="annotation">[&lt;ffffffff81116016&gt;]</span> ? generic_file_buffered_write+<span class="number">0x186</span>/<span class="number">0x2b0</span></div><div class="line"> <span class="annotation">[&lt;ffffffff811177b2&gt;]</span> ? __generic_file_aio_write+<span class="number">0x272</span>/<span class="number">0x430</span></div><div class="line"> <span class="annotation">[&lt;ffffffff811179ed&gt;]</span> ? generic_file_aio_write+<span class="number">0x7d</span>/<span class="number">0xf0</span></div><div class="line"> <span class="annotation">[&lt;ffffffff8117a312&gt;]</span> ? do_sync_write+<span class="number">0xf2</span>/<span class="number">0x130</span></div><div class="line"> <span class="annotation">[&lt;ffffffff811404a4&gt;]</span> ? handle_mm_fault+<span class="number">0x234</span>/<span class="number">0x2d0</span></div><div class="line"> <span class="annotation">[&lt;ffffffff81095dd0&gt;]</span> ? autoremove_wake_function+<span class="number">0x0</span>/<span class="number">0x40</span></div><div class="line"> <span class="annotation">[&lt;ffffffff810a0175&gt;]</span> ? ktime_get_ts+<span class="number">0xb5</span>/<span class="number">0xf0</span></div><div class="line"> <span class="annotation">[&lt;ffffffff8118fc6b&gt;]</span> ? poll_select_copy_remaining+<span class="number">0xdb</span>/<span class="number">0x140</span></div><div class="line"> <span class="annotation">[&lt;ffffffff81216dc6&gt;]</span> ? security_file_permission+<span class="number">0x16</span>/<span class="number">0x20</span></div><div class="line"> <span class="annotation">[&lt;ffffffff8117ba2c&gt;]</span> ? vfs_write+<span class="number">0xcc</span>/<span class="number">0x1a0</span></div><div class="line"> <span class="annotation">[&lt;ffffffff8117bbe5&gt;]</span> ? sys_write+<span class="number">0x55</span>/<span class="number">0x90</span></div><div class="line"> <span class="annotation">[&lt;ffffffff8100cf72&gt;]</span> ? system_call_fastpath+<span class="number">0x16</span>/<span class="number">0x1b</span></div><div class="line">Buffer I/O error on device sda2, logical block <span class="number">11844973</span></div><div class="line">lost page write due <span class="keyword">to</span> I/O error on sda2</div><div class="line">EXT3-fs: ext3_journal_dirty_data: aborting transaction: IO failure <span class="keyword">in</span> ext3_journal_dirty_data</div><div class="line">EXT3-fs (sda2): error <span class="keyword">in</span> ext3_orphan_add: Readonly filesystem</div><div class="line">EXT3-fs (sda2): error <span class="keyword">in</span> ext3_ordered_write_end: IO failure</div><div class="line">JBD: Detected IO errors <span class="keyword">while</span> flushing file data on sda2</div></pre></td></tr></table></figure>
+
+<p>Kernel级别的错误注入！很好很强大！</p>
+<h3 id="总结-1">总结</h3>
+<p>总的来说这个方法还是挺好用的，最大的问题是要重新build内核，此外就是错误注入的控制还欠灵活些（相对下面的SystemTap来说）。</p>
+<h2 id="SystemTap">SystemTap</h2>
+<h3 id="简介-2">简介</h3>
+<p>SystemTap的简介，只需要7个字！<strong>狂拽酷炫屌炸天</strong>！自从读了Brendan Gregg大神的&lt;<a href="http://www.amazon.com/Systems-Performance-Enterprise-Brendan-Gregg/dp/0133390098" target="_blank" rel="external">Systems Performance</a>&gt;，DTrace，SystemTap这类的动态追踪工具就成了我眼中的大杀器！第一次实际使用它，我就被其缓慢的启动速度，诡异的报错信息以及强大的破坏力深深地打动了……下面就来详细说一下吧。</p>
+<h3 id="配置-1">配置</h3>
+<p>在RHEL或者CentOS下的安装应该都比较顺利，可以直接<code>yum install</code>或者从源码编译（版本会比较新）。然后要装一下kernel的debuginfo包，否则直接在地址信息上插入probe有点暴力的……</p>
+<p>装完试一下经典的Hello World!</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">sudo</span> stap -ve <span class="string">'probe begin { println("Hello World") exit () }'</span></div></pre></td></tr></table></figure>
+
+<p>还可以试试这个：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">sudo</span> stap <span class="operator">-l</span> <span class="string">'kernel.function("scsi_*")'</span></div></pre></td></tr></table></figure>
+
+<p>列出了各种可以获取到的kernel function，之后就可以以此来注入probe啦！</p>
+<h3 id="使用-2">使用</h3>
+<p>由于对Linux SCSI驱动层面几乎一无所知，所以基本沿用了这个<a href="http://sourceforge.net/projects/scsifaultinjtst/" target="_blank" rel="external">开源项目</a>中的SystemTap代码。从这个项目中也学习到了很多SystemTap的优秀feature:</p>
+<ol>
+<li>可以直接嵌入C代码，然后就有很多神奇的用法比如霸爷的<a href="http://blog.yufeng.info/archives/826" target="_blank" rel="external">这篇</a>以及<a href="http://blog.yufeng.info/archives/1173" target="_blank" rel="external">这篇</a>博文。</li>
+<li>SystemTap的脚本语言也比较直观，可以用-I来加载lib，方便组织代码重用。</li>
+<li>Probe的注入点非常灵活，所以对于错误注入的控制粒度也是最细的了，感觉甚至可以用它来帮助观察内核的瞬时call stack以增进对kernel工作原理的理解，比直接看代码更快捷。</li>
+</ol>
+<p>这个项目也有些年头了，代码一直没有更新，所以拿来直接跑会碰到不少问题：</p>
+<ol>
+<li>在SystemTap 1.7之后嵌入C代码时函数的参数从<code>THIS-&gt;arg</code>形式改为了<code>STAP_ARG_arg</code>，另外返回值也从<code>THIS-&gt;__retvalue</code>变成了<code>STAP_RETVALUE</code>。碰到临时编译的C代码报错问题时可以在运行stap时加上<code>-k</code>参数，这样自动生成的C代码会在<code>/tmp</code>下保留，方便进一步排查问题。</li>
+<li>原来的代码适应的内核版本较老，在2.6.32以后的版本中会报有些struct的成员变量已经不存在的错误，比如<code>drivers/scsi/scsi.c</code>中的<code>$cmd-&gt;request-&gt;sector</code>就找不到了，打开<a href="http://lxr.free-electrons.com/source/include/scsi/scsi_cmnd.h?v=2.6.34#L53" target="_blank" rel="external">lxr</a>查找scsi_cmnd以及request struct的定义，可以看到sector被改成了__sector。更严重的是timeout的错误注入，<code>drivers/scsi/scsi_error.c</code>这个文件中的各个函数都被改得面目全非，所以暂时没有尝试这种错误注入。</li>
+<li>我在跑脚本的时候还碰到了找不到那些function的错误，后来发现是因为我们的kernel是把scsi模块直接编译进内核的，所以要在<code>kernel.function</code>里找。默认的编译方式好像是把这些东西编译成module的，因而原先的脚本都是在<code>module(&quot;*&quot;).function</code>里找。</li>
+</ol>
+<p>由于原脚本的逻辑看起来异常复杂，难以调试，所以我把其中的代码一块一块剥离出来自己拼接使用，为了更好地控制错误注入的方式，比如通过pid，inode，device来过滤需要错误注入的目标，加上失败次数，失败概率等各种常见调控参数，我又以自己拙劣的SystemTap代码能力……历经千辛万苦……从网上找了另一个fault injection的<a href="http://lwn.net/Articles/289932/" target="_blank" rel="external">framework</a>来用…………组装成功后真是简单好用，想怎么注入就怎么注入啊！</p>
+<p>先来看下效果：</p>
+<p>准备工作</p>
+<p>简单起见，我就用读写一个文本文件来做测试了。随便建立一个文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">echo</span> <span class="string">"test fault injection"</span> &gt; test_fault_injection</div></pre></td></tr></table></figure>
+
+<p>在跑脚本时需要指定一下错误注入的目标也就是这个文件的inode号或block号，可以用下面的方法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">sudo</span> debugfs -R <span class="string">"stat /home/admin/zijie/test_fault_injection"</span> /dev/sda2</div><div class="line">debugfs <span class="number">1.41</span>.<span class="number">12</span> (<span class="number">17</span>-May-<span class="number">2010</span>)</div><div class="line">Inode: <span class="number">2992033</span>   Type: regular    Mode:  <span class="number">0664</span>   Flags: <span class="number">0</span>x0</div><div class="line">Generation: <span class="number">2438482565</span>    Version: <span class="number">0</span>x00000000</div><div class="line">User:   <span class="number">505</span>   Group:   <span class="number">505</span>   Size: <span class="number">130</span></div><div class="line">File ACL: <span class="number">0</span>    Directory ACL: <span class="number">0</span></div><div class="line">Links: <span class="number">1</span>   Blockcount: <span class="number">8</span></div><div class="line">Fragment:  Address: <span class="number">0</span>    Number: <span class="number">0</span>    Size: <span class="number">0</span></div><div class="line">ctime: <span class="number">0</span>x53745b2d -- Thu May <span class="number">15</span> <span class="number">14</span>:<span class="number">14</span>:<span class="number">05</span> <span class="number">2014</span></div><div class="line">atime: <span class="number">0</span>x5390017b -- Thu Jun  <span class="number">5</span> <span class="number">13</span>:<span class="number">34</span>:<span class="number">51</span> <span class="number">2014</span></div><div class="line">mtime: <span class="number">0</span>x53745b2d -- Thu May <span class="number">15</span> <span class="number">14</span>:<span class="number">14</span>:<span class="number">05</span> <span class="number">2014</span></div><div class="line">Size of extra inode fields: <span class="number">4</span></div><div class="line">BLOCKS:</div><div class="line">(<span class="number">0</span>):<span class="number">11982918</span></div><div class="line">TOTAL: <span class="number">1</span></div></pre></td></tr></table></figure>
+
+<p>最后还要获取一下device的major, minor id，我用的是</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ ls <span class="operator">-l</span> /dev | grep sda</div><div class="line">brw-r-----  <span class="number">1</span> root disk   <span class="number">8</span>,   <span class="number">0</span> May <span class="number">15</span> <span class="number">02</span>:<span class="number">46</span> sda</div><div class="line">brw-r-----  <span class="number">1</span> root disk   <span class="number">8</span>,   <span class="number">1</span> May <span class="number">14</span> <span class="number">18</span>:<span class="number">46</span> sda1</div><div class="line">brw-r-----  <span class="number">1</span> root disk   <span class="number">8</span>,   <span class="number">2</span> May <span class="number">15</span> <span class="number">02</span>:<span class="number">46</span> sda2</div><div class="line">brw-r-----  <span class="number">1</span> root disk   <span class="number">8</span>,   <span class="number">3</span> May <span class="number">15</span> <span class="number">02</span>:<span class="number">46</span> sda3</div><div class="line">brw-r-----  <span class="number">1</span> root disk   <span class="number">8</span>,   <span class="number">4</span> May <span class="number">15</span> <span class="number">02</span>:<span class="number">46</span> sda4</div><div class="line">brw-r-----  <span class="number">1</span> root disk   <span class="number">8</span>,   <span class="number">5</span> May <span class="number">14</span> <span class="number">18</span>:<span class="number">46</span> sda5</div><div class="line">brw-r-----  <span class="number">1</span> root disk   <span class="number">8</span>,   <span class="number">6</span> May <span class="number">14</span> <span class="number">18</span>:<span class="number">46</span> sda6</div><div class="line">brw-r-----  <span class="number">1</span> root disk   <span class="number">8</span>,   <span class="number">7</span> May <span class="number">15</span> <span class="number">02</span>:<span class="number">46</span> sda7</div></pre></td></tr></table></figure>
+
+<p>可以看到major id是8，minor id从0到7。</p>
+<p>注入起来</p>
+<p>错误注入前：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ cat test_fault_injection                  </div><div class="line">test</div><div class="line"> </div><div class="line">$ <span class="built_in">echo</span> <span class="string">"test"</span> &gt;&gt; test_fault_injection</div><div class="line"> </div><div class="line">$ cat test_fault_injection           </div><div class="line">test</div><div class="line">test</div></pre></td></tr></table></figure>
+
+<p>跑一下脚本命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">sudo</span> stap -g scsi_fij.stp -I ./lib/ debug=<span class="number">1</span> inode=<span class="number">2992033</span> <span class="keyword">exec</span>=<span class="string">"cat"</span> <span class="keyword">exec</span>=<span class="string">"swapper"</span></div></pre></td></tr></table></figure>
+
+<p>测试读取文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat test_fault_injection                  </div><div class="line">cat: test_fault_injection: Input/output error</div></pre></td></tr></table></figure>
+
+<p>看一下<code>/var/log/message</code>：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sd <span class="number">0</span>:<span class="number">0</span>:<span class="number">0</span>:<span class="number">0</span>: [sda] Sense <span class="keyword">Key</span> : Medium <span class="keyword">Error</span> [current]</div><div class="line">sd <span class="number">0</span>:<span class="number">0</span>:<span class="number">0</span>:<span class="number">0</span>: [sda] Add. Sense: Unrecovered read <span class="keyword">error</span> - <span class="keyword">auto</span> reallocate failed</div><div class="line">sd <span class="number">0</span>:<span class="number">0</span>:<span class="number">0</span>:<span class="number">0</span>: [sda] CDB: Read(<span class="number">10</span>): <span class="number">28</span> <span class="number">00</span> <span class="number">05</span> be <span class="number">62</span> <span class="number">30</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></div><div class="line">Buffer I/O <span class="keyword">error</span> <span class="keyword">on</span> device sda2, logical block <span class="number">11982918</span></div></pre></td></tr></table></figure>
+
+<p>写入也是一样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">echo</span> <span class="string">"test_after_fault_inject"</span> &gt;&gt; test_fault_injection                                                </div><div class="line">-bash: <span class="built_in">echo</span>: write error: Input/output error</div></pre></td></tr></table></figure>
+
+<p>把脚本停了之后，文件中原来的内容还是没有任何损坏。</p>
+<p>另外可以在脚本里加<code>print_backtrace()</code>来查看错误注入时的call stack。如果对内核代码非常了解的话，就可以几乎在任意的位置注入错误了！</p>
+<h3 id="工作原理">工作原理</h3>
+<p>详细的SystemTap使用可以看<a href="https://sourceware.org/systemtap/SystemTap_Beginners_Guide/" target="_blank" rel="external">官方教程</a>，另外它本身就自带了许多<a href="https://sourceware.org/systemtap/examples/" target="_blank" rel="external">示范脚本</a>，已经可以满足很多日常的监控分析工作，推荐大家试试！另外其工作原理可以参考<a href="http://www.lizhaozhong.info/archives/577" target="_blank" rel="external">这篇文章</a>。</p>
+<p>在这个SCSI错误注入脚本里基本上就是在<code>scsi_decide_disposition</code>这个function上加probe，然后进去后获取一系列变量信息以此来控制是否进行错误注入。在控制是否错误注入时使用了fij的库，在代码里看就是那些<code>fij_params</code>和<code>fij_should_fail()</code>等。截取一个代码片段来看下：</p>
+<figure class="highlight C"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">probe kernel.function(<span class="string">"scsi_decide_disposition@drivers/scsi/scsi_error.c"</span>)</div><div class="line">{</div><div class="line">    scmd_direction = $scmd-&gt;sc_data_direction</div><div class="line">    major = $scmd-&gt;request-&gt;rq_disk-&gt;major</div><div class="line">    minor = $scmd-&gt;request-&gt;rq_disk-&gt;first_minor</div><div class="line">    block = $scmd-&gt;request-&gt;__sector</div><div class="line">    struct_bio= $scmd-&gt;request-&gt;bio</div><div class="line">    <span class="keyword">if</span> (struct_bio != <span class="number">0</span>)</div><div class="line">    {</div><div class="line">        page = $scmd-&gt;request-&gt;bio-&gt;bi_io_vec-&gt;bv_page</div><div class="line">        <span class="keyword">if</span> (page != <span class="number">0</span>)</div><div class="line">        {</div><div class="line">            inode = get_inode(page)</div><div class="line">        }</div><div class="line">    }</div><div class="line">    <span class="keyword">if</span> (fij_params[<span class="string">"inode_filter"</span>] == <span class="number">1</span> && !(inode in fij_inodes_to_fail)) next</div><div class="line">    <span class="keyword">if</span> (fij_should_fail() == <span class="number">1</span>) {</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"scsi_decide_disposition : %s(%d) cmd (%d)\n"</span>, execname(), pid(), $scmd-&gt;cmnd[<span class="number">0</span>])</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"scsi_decide_disposition : major=%d minor=%d scmd=%d \n"</span>, major, minor, $scmd)</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"scsi_decide_disposition : scmd-direction = %d\n"</span>, scmd_direction)</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"scsi_decide_disposition : start sector = %d \n"</span>, block)</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"scsi_decide_disposition : inode = %d \n"</span>, inode)</div><div class="line">        print_backtrace()</div><div class="line">        <span class="built_in">printf</span>(<span class="string">"scsi_decide_disposition : !!!!!! set sense buf !!!!!!\n"</span>)</div><div class="line">        set_sense_buf($scmd, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x11</span>, <span class="number">0x04</span>)</div><div class="line">        fij_done_fail()</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>类似C的语法的脚本语言！还是很直观好用的吧！</p>
+<h3 id="SCSI错误类型">SCSI错误类型</h3>
+<p>在脚本中有两个关键的错误注入点，一个是<code>set_sense_buf</code>函数</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">function set_sense_buf:<span class="keyword">long</span> (cmd:<span class="keyword">long</span>, result:<span class="keyword">long</span>, sensekey:<span class="keyword">long</span>, asc:<span class="keyword">long</span>, ascq:<span class="keyword">long</span> )</div><div class="line">%{</div><div class="line">        <span class="keyword">struct</span> scsi_cmnd * scmd = (<span class="keyword">struct</span> scsi_cmnd *)(<span class="keyword">long</span>)STAP_ARG_cmd;</div><div class="line"> </div><div class="line">        scmd-&gt;result = (<span class="keyword">int</span>)(<span class="keyword">long</span>)STAP_ARG_result;  <span class="comment">/* case DID_BUS_BUSY: 0x02 */</span></div><div class="line">        scmd-&gt;sense_buffer[<span class="number">0</span>] = <span class="number">0x70</span>; <span class="comment">/* current, fixed format */</span></div><div class="line">        scmd-&gt;sense_buffer[<span class="number">2</span>] = (<span class="keyword">unsigned</span> <span class="keyword">char</span>)(<span class="keyword">long</span>)STAP_ARG_sensekey; <span class="comment">/* 0x03 */</span></div><div class="line">        scmd-&gt;sense_buffer[<span class="number">7</span>] = <span class="number">0x13</span>; <span class="comment">/* length */</span></div><div class="line">        scmd-&gt;sense_buffer[<span class="number">12</span>] = (<span class="keyword">unsigned</span> <span class="keyword">char</span>)(<span class="keyword">long</span>)STAP_ARG_asc; <span class="comment">/* 0x11 */</span></div><div class="line">        scmd-&gt;sense_buffer[<span class="number">13</span>] = (<span class="keyword">unsigned</span> <span class="keyword">char</span>)(<span class="keyword">long</span>)STAP_ARG_ascq; <span class="comment">/* 0x04 */</span></div><div class="line">%}</div></pre></td></tr></table></figure>
+
+<p>一头雾水的感觉啊有没有！这又是SCSI驱动编程的新领域了……去查<a href="http://www.tldp.org/HOWTO/archived/SCSI-Programming-HOWTO/SCSI-Programming-HOWTO-10.html" target="_blank" rel="external">文档</a>。终于大致理解了上面这段代码：</p>
+<blockquote>
+<p>第0个字节默认设置为0x70或0x71<br>第2个字节为Sense Key，脚本中设置为0x03，意为<a href="http://www.tldp.org/HOWTO/archived/SCSI-Programming-HOWTO/SCSI-Programming-HOWTO-21.html#sec-sensekeys" target="_blank" rel="external">medium error</a>，与系统报错一致<br>第7个字节为长度，不知道为何设置成0x13，看代码应该大于十进制的13才能读取后面用到的两个field<br>第12，13字节组成了一套复杂的<a href="http://www.tldp.org/HOWTO/archived/SCSI-Programming-HOWTO/SCSI-Programming-HOWTO-22.html#sec-sensecodes" target="_blank" rel="external">状态</a><br>脚本中设置的0x11, 0x04含义为：UNRECOVERED READ ERROR - AUTO REALLOCATE FAILED，与系统报错一致</p>
+</blockquote>
+<p>我们可以利用这些信息返回任意我们想要的SCSI错误。</p>
+<p>另外一个是修改scsi command，脚本中有如下代码：<code>if (($cmd-&gt;cmnd[0] == 0x28) || ($cmd-&gt;cmnd[0] == 0x2a))</code><br>参考<a href="http://en.wikipedia.org/wiki/SCSI_command#List_of_SCSI_commands" target="_blank" rel="external">维基百科</a><br>可以看到这两个命令是：<code>28 READ(10)</code>和<code>2A WRITE(10)</code>读或者写10个字节<br>但是后面设置了<code>$cmd-&gt;cmnd[7] = 0</code>, <code>$cmd-&gt;cmnd[8] = 0</code>这两个，苦苦搜索都没找到相关文档，看到<a href="http://lxr.free-electrons.com/source/drivers/scsi/aacraid/aachba.c?v=2.6.34" target="_blank" rel="external">内核源码</a>中有这么一段：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">} <span class="keyword">else</span> <span class="keyword">if</span> (cmd-&gt;cmnd[<span class="number">0</span>] == WRITE_10) {</div><div class="line">        cmnd_lba = ((u64)cmd-&gt;cmnd[<span class="number">2</span>] &lt;&lt; <span class="number">24</span>) |</div><div class="line">                (cmd-&gt;cmnd[<span class="number">3</span>] &lt;&lt; <span class="number">16</span>) |</div><div class="line">                (cmd-&gt;cmnd[<span class="number">4</span>] &lt;&lt; <span class="number">8</span>) |</div><div class="line">                cmd-&gt;cmnd[<span class="number">5</span>];</div><div class="line">        cmnd_count = (cmd-&gt;cmnd[<span class="number">7</span>] &lt;&lt; <span class="number">8</span>) |</div><div class="line">                cmd-&gt;cmnd[<span class="number">8</span>];</div></pre></td></tr></table></figure>
+
+<p>所以这两个应该是scsi command的数量，在这里强制设为了0，可能是直接取消了后续的任何读写操作？还望大牛指点迷津啊！</p>
+<h3 id="总结-2">总结</h3>
+<p>SystemTap果然是极其强大啊！当然对使用者要求也比较高，需要对内核本身的各种function，运作流程比较了解。使用中感觉它最大的优势是控制点非常细，几乎可以在任意的代码路径上注入想要的错误。如果我们能取得kernel panic时候的call stack，就可以准确地在原本出错的函数返回处注入错误，以此来进行bug的修复验证，而不用长时间反复跑压力测试来期望硬件问题的复现，可以极大地提高效率！</p>
+<h2 id="未来">未来</h2>
+<p>写了第一篇博文，感觉还是有点激动的！目前对于Linux内核方面我还是完全的小白，希望以后能多向大牛学习，争取早日入门！计划接下来看一些<a href="http://book.douban.com/subject/25828773/" target="_blank" rel="external">Robert Love</a>大神的书，然后6月跟一下Coursera上的<a href="https://www.coursera.org/course/sdn" target="_blank" rel="external">SDN</a>与<a href="https://www.coursera.org/course/hwswinterface" target="_blank" rel="external">The Hardware/Software Interface</a>这两门课。有兴趣的同学也可以一起组团，共同进步！</p>
+<p><strong>Happy Hacking Everyday!</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Linux/">Linux</a><a href="/tags/SystemTap/">SystemTap</a>
+  </div>
+
+</div>
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://zijie0.github.io/2014/06/05/linux-scsi-fault-injection/" data-title="Linux SCSI Fault Injection | Tada!" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/06/13/Learning-Scala/" title="Learning Scala">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Learning Scala</span>
+</a>
+</div>
+
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#libfiu"><span class="toc-number">1.</span> <span class="toc-text">libfiu</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#简介"><span class="toc-number">1.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装"><span class="toc-number">1.2.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用"><span class="toc-number">1.3.</span> <span class="toc-text">使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">1.4.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fsdisk"><span class="toc-number">2.</span> <span class="toc-text">fsdisk</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_Kernel_fault_injection_infrastructure"><span class="toc-number">3.</span> <span class="toc-text">Linux Kernel fault injection infrastructure</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#简介-1"><span class="toc-number">3.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置"><span class="toc-number">3.2.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用-1"><span class="toc-number">3.3.</span> <span class="toc-text">使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结-1"><span class="toc-number">3.4.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SystemTap"><span class="toc-number">4.</span> <span class="toc-text">SystemTap</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#简介-2"><span class="toc-number">4.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置-1"><span class="toc-number">4.2.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用-2"><span class="toc-number">4.3.</span> <span class="toc-text">使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#工作原理"><span class="toc-number">4.4.</span> <span class="toc-text">工作原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SCSI错误类型"><span class="toc-number">4.5.</span> <span class="toc-text">SCSI错误类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结-2"><span class="toc-number">4.6.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#未来"><span class="toc-number">5.</span> <span class="toc-text">未来</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/Coursera/" title="Coursera">Coursera<sup>4</sup></a></li>
+		
+			<li><a href="/tags/Python/" title="Python">Python<sup>3</sup></a></li>
+		
+			<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		
+			<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>2</sup></a></li>
+		
+			<li><a href="/tags/Scala/" title="Scala">Scala<sup>1</sup></a></li>
+		
+			<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>1</sup></a></li>
+		
+			<li><a href="/tags/gdb/" title="gdb">gdb<sup>1</sup></a></li>
+		
+			<li><a href="/tags/Performance/" title="Performance">Performance<sup>1</sup></a></li>
+		
+			<li><a href="/tags/SystemTap/" title="SystemTap">SystemTap<sup>1</sup></a></li>
+		
+			<li><a href="/tags/book/" title="book">book<sup>1</sup></a></li>
+		
+			<li><a href="/tags/FP/" title="FP">FP<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">Links</p>
+    <ul>
+      <li><a href="http://csrd.aliapp.com/" target="_blank" title="Ali">阿里核心系统团队博客</a></li>
+      <li><a href="http://kernel.taobao.org/index.php" target="_blank" title="AliKernel">阿里内核组</a></li>
+    </ul>
+</div>
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/010bytes" target="_blank" class="icon-weibo" title="weibo"></a>
+		
+		
+		<a href="https://github.com/zijie0" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/drinkdrink" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		
+		<a href="mailto:myoilbox@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://zespia.tw/hexo/" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Pacman">Jacman</a> © 2015 
+		
+		<a href="http://zijie0.github.io/about" target="_blank" title="Zijie0">Zijie0</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"zijie0"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-51424600-1', 'zijie0.github.io');  
+ga('send', 'pageview');
+</script>
+
+
+
+
+<div id="totop">
+<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+</div>
+
+<script src="/js/totop.js"></script>
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,457 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Python Algorithms - Union Find | Tada!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Zijie0">
+    
+    <meta name="description" itemprop="description" content="经典的Union Find数据结构，以及神乎其技的算法复杂度分析……">
+    
+    
+    
+    
+    <link rel="alternative" href="/atom.xml" title="Tada!" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Tada!" title="Tada!"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Tada!">Tada!</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Main</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="Search" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/08/08/Python-Algorithms---Union-Find/" title="Python Algorithms - Union Find" itemprop="url">Python Algorithms - Union Find</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="http://zijie0.github.io/about" title="Zijie0" target="_blank" itemprop="author">Zijie0</a>
+		
+  <p class="article-time">
+    <time datetime="2014-08-08T11:07:52.000Z" itemprop="datePublished"> Published Aug 8 2014</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#算法介绍"><span class="toc-number">1.</span> <span class="toc-text">算法介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复杂度分析"><span class="toc-number">2.</span> <span class="toc-text">复杂度分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#性质与引理"><span class="toc-number">2.1.</span> <span class="toc-text">性质与引理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hopcroft-Ullman_Theorem"><span class="toc-number">2.2.</span> <span class="toc-text">Hopcroft-Ullman Theorem</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tarjan’s_Analysis"><span class="toc-number">2.3.</span> <span class="toc-text">Tarjan’s Analysis</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#八卦环节"><span class="toc-number">3.</span> <span class="toc-text">八卦环节</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="算法介绍">算法介绍</h2>
+<p>在普林斯顿算法课的第一课中，老师就讲解了这个经典的Union Find数据结构。它主要是用来解决动态连同性问题。在课上举的例子就是做聚类，初始化时每个点都是一个cluster，然后从距离最近的开始做union，同时减少cluster的数量，一直到聚类为所需要的cluster数目为止。在这个过程中有两个典型操作，一是判断目前选取的距离最近的两个点是否已经在同一个cluster中，另外一个是将两个不在同个cluster中的点union起来。我们就要根据这两个操作来设计数据结构及相应算法。</p>
+<p>最直观的做法就是Quick Find。用一个数组存每个点（index）所在的组，一开始就初始化为本身即可。在做find时，只要看数组中对应index存的组id即可，时间复杂度为O(1)。而union时则要将其中一个组的所有id都改为另一个组当前的id，所以复杂度达到了O(N)，效率不太行。</p>
+<p>Union Find则改进了Union过程，在union时不把所有组成员的id都改了，而只改“带头大哥”的id，形成一个类似树的结构。这样的话每次union时先要调用两次find找到两方的根，然后修改其中一方到另一方名下即可。如果每次只是随便定一方为新老大，这个树很可能变成又瘦又长，变成个链表，又是O(N)的复杂度。这里有个很自然的优化就是把size/height比较小的树并到大树底下去，让这棵树不至于太瘦长。另外在find过程中还可以做path compression，就是将find过程中一层层找上去的中间节点在最后都一起设成根节点的id！这样以后做find就是一步的事情了！整体的Python代码实现如下：</p>
+<figure class="highlight Python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">UF</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, size)</span>:</span></div><div class="line">        self.parent = []</div><div class="line">        self.rank = []</div><div class="line">        self.count = size</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, size):</div><div class="line">            self.parent.append(i)</div><div class="line">            self.rank.append(<span class="number">0</span>)</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">find</span><span class="params">(self, i)</span>:</span></div><div class="line">        <span class="comment"># with path compression</span></div><div class="line">        <span class="keyword">if</span> self.parent[i] != i:</div><div class="line">            self.parent[i] = self.find(self.parent[i])</div><div class="line">        <span class="keyword">return</span> self.parent[i]</div><div class="line"> </div><div class="line">        <span class="comment"># another impl</span></div><div class="line">        <span class="comment"># root = i</span></div><div class="line">        <span class="comment"># while root != self.parent[root]:</span></div><div class="line">        <span class="comment">#     self.parent[root] = self.parent[self.parent[root]]</span></div><div class="line">        <span class="comment">#     root = self.parent[root]</span></div><div class="line">        <span class="comment"># return root</span></div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connected</span><span class="params">(self, i, j)</span>:</span></div><div class="line">        <span class="keyword">return</span> self.find(i) == self.find(j)</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">union</span><span class="params">(self, i, j)</span>:</span></div><div class="line">        p = self.find(i)</div><div class="line">        q = self.find(j)</div><div class="line">        <span class="keyword">if</span> p == q: <span class="keyword">return</span></div><div class="line">        <span class="keyword">if</span> self.rank[p] &lt; self.rank[q]:</div><div class="line">            self.parent[p] = q</div><div class="line">        <span class="keyword">elif</span> self.rank[p] &gt; self.rank[q]:</div><div class="line">            self.parent[q] = p</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            self.parent[q] = p</div><div class="line">            self.rank[p] += <span class="number">1</span></div><div class="line">        self.count -= <span class="number">1</span></div></pre></td></tr></table></figure>
+
+<h2 id="复杂度分析">复杂度分析</h2>
+<h3 id="性质与引理">性质与引理</h3>
+<p>这里用的是rank，类似于height但在union过程中并不严格是树的height。初始化时我们把它设为0，可以暂时理解为从leaf跳到当前节点的hop数。后面算法分析中有关于这个rank的一些性质。</p>
+<p>这个数据结构非常简单，算法过程本身也很容易懂，不过整个算法的复杂度分析可是相当碉堡……我们先来看一些直观的性质！</p>
+<ol>
+<li>任何节点的rank值在整个算法过程中只会增加，不会减少。这个应该一眼就能看穿吧！</li>
+<li>在整个算法过程中只有root节点的rank值会增加。这个也可以在代码中发现。另外一个节点如果不是root了，以后就永远不会再变成root。</li>
+<li>在find的整个路径上，节点的rank值只会单调增加。也是显而易见的。</li>
+</ol>
+<p>接下来是rank lemma，需要证明一下，课上老师分了两个Claim：</p>
+<ol>
+<li>如果x, y两个节点具有相同的rank，那么它们的subtree必须是无重合的。</li>
+<li>一个rank为r的节点的subtree大小要 &gt;= 2<sup>r</sup>。</li>
+</ol>
+<p>Claim 1可以用反证法，如果有重合，那么有个node z既可以到达x，又可以到达y。由于路径是单一的，所以x和y在路径上必须有先后，根据前面第3点的性质，有先后rank大小就必然不一致，所以得证。<br>Claim 2从base case看，如果rank为0，那么subtree size为1，很显然成立。在后续操作中又分两种情况： a) 在union时两方的rank都没变化，因为union之后subtree size只会更大，所以也是满足下界的。b) 如果有一方rank变大了，那么表示之前两方rank值相等，所以两方之前的size都至少为2<sup>r</sup>，rank+1的那一方的size自然至少是这个值乘以2，也就是 &gt;= 2<sup>r+1</sup>啦！QED</p>
+<h3 id="Hopcroft-Ullman_Theorem">Hopcroft-Ullman Theorem</h3>
+<p>证完这个只是开始……首先来看下最后复杂度计算中要用到的log*函数。这个函数的计算方法就是对一个数做以2为底的log运算直到结果&lt;=1时总共做的运算的次数。这个函数增长极其缓慢，比如2<sup>265</sup>，据说是宇宙中所有粒子数之和？第一次log完265 -&gt; 第二次 8 -&gt; 第三次 3 -&gt; 第四次 1多点 所以最后结果就是5了。</p>
+<p>接下来根据这个运算来建立block，老师用的block分区为{0}, {1}, {2,3,4}, {5,…,2<sup>4</sup>}, {17,…,2<sup>16</sup>}…… 每个block中最大的数做log运算后正好是前一个block中最大的数，因此一共有O(log* n)个不同的block。之所以要设置这些block是为了记录我们在find过程中每一跳所能取得的rank进展。这里还有要注意的一点是我们同时用了path compression，由于path compression会将路径上所有的点直接指向root，所以在这个compression过程中parent的rank值是只会增加不会变小的！</p>
+<p>接下来我们再来定义一下good node和bad node。好的节点呢有两个条件：</p>
+<ol>
+<li>x或者x的parent就是root</li>
+<li>rank[parent(x)]在比rank(x)更大的block中</li>
+</ol>
+<p>只要满足其一即可。而不满足这两个条件的就是邪恶节点了。这里老师没有分析一开始的邪恶节点是如何出现的，我自己思索了下发现root节点在union时碰到一个rank相同的另一个root时会出现一方的rank+1，而没有+1的那一方的child可能因此变成了bad node。</p>
+<p>考虑我们在m次find操作中，在整个path上碰到good node数最多为O(mlog* n)，如果是bad node，由于我们有path compression，而且根据parent rank只会增加以及非root节点的rank值再也不会变化这两个特性，我们可知任何节点一旦“从良”就永远是“良民”了！那么在成为良民前我们会在路径上access bad node几次呢？考虑在block k中的bad node，那么最多不超过2<sup>k</sup>次（这里忽略了k这个比较小的数）。根据rank lemma，rank为r的节点的subtree size最小为2<sup>r</sup>，所以rank为r的节点数最多为n/2<sup>r</sup>。然后我们再计算block k中各rank的node数量之和，sum(n/2<sup>i</sup>) (k+1 &lt;= i &lt;= 2<sup>k</sup>)这个值 &lt;= n/2<sup>k</sup>。这个值与之前access的次数乘一下，就得到了n。每个block都是n，总共log* n个block，最后的结果是O(nlog* n)，加起来的结果是O((m+n)log* n)。这个证明称为Hopcroft-Ullman Theorem。</p>
+<h3 id="Tarjan’s_Analysis">Tarjan’s Analysis</h3>
+<p>上面这个分析过程已经让人看得有些迷茫了，不过还有更猛的……这里又引入了一个新函数，Ackermann Function：</p>
+<blockquote>
+<p>设定个base case A<sub>0</sub>(r) = r + 1，后面每递归一层，就是对前一层函数调用r次，比如A<sub>1</sub>(r) = A<sub>0</sub>(A<sub>0</sub>(A<sub>0</sub>(…A<sub>0</sub>(r)…)))一共调用r次A<sub>0</sub>，那就是r + r * 1也就是2r了！这样看起来也还好嘛……A<sub>2</sub>(r)同理，就是r * 2<sup>r</sup>，接下来A<sub>3</sub>(r)就有点可怕了……光2<sup>r</sup>那部分就会形成一个2的乘方的塔……这位老师说光想一想A<sub>4</sub>(r)就开始头痛了，我们也到此为止吧。</p>
+</blockquote>
+<p>这个Ackermann函数增长如此之快，真容易让人联想到魔兽里的大boss之一阿克蒙德啊……但是再Tarjan的分析中用的是它的反函数（r设为2），所以就成了一个增长比log*还慢的函数。基本上我们用到的数apply这个函数后都不会超过4。课上老师还比较了下这两个函数，虽然log*也很猛，但是见到阿克蒙德，真的就只能呵呵了……</p>
+<p>Tarjan analysis过程与之前的Hopcroft-Ullman很像，之前是定义block，这里是用delta函数δ(x) = max k that rank[parent(x)] &gt;= A<sub>k</sub>(rank[x])，因为parent rank至少比x大，A<sub>0</sub>(r) = r + 1，所以δ(x) &gt;= 0。以此类推，当parent rank是x的两倍或更大时，δ(x) &gt;= 1，当parent rank &gt;= rank[x] * 2<sup>rank[x]</sup> 时 δ(x) &gt;= 2……</p>
+<p>接下来在设定bad node条件时把跟parent在同一个block变成了跟它所有ancestors中的某个拥有node相同的delta值。还有个不太重要的附加条件，rank[x] &gt;= 2。这样在每次path compression时，这个bad node x的parent被提升到的rank至少是A<sub>k</sub>(rank[x])，这点是跟之前分析的主要不同之处！因为它改变了block的条件，所以access bad nodes时的情景也不一样了，其提升的gap也大大加强了！（我理解为加强了gap条件，再去分析access次数看是不是还能bound到一个数量以此来进一步降低这个总体复杂度的边界）在access r次之后，A<sub>k</sub>(A<sub>k</sub>(A<sub>k</sub>(…(rank[x])…)))就成了下一层的A<sub>k+1</sub>了，它终究成了一个forever good node，所以这里的access次数就成了 α(n)（A<sub>k</sub>的反函数）。后面的分析就基本一致了！bad nodes的求和为α(n) * sum(r * n / 2<sup>r</sup>) (r &gt;= 0) = C * n * α(n)。而good node的access次数计算与之前也基本一致，总体次数为：1 root + 1 child of root + 1 object with rank 1 + (1 object with δ(x) = k for each k in (0, 1, 2, …, α(n))) = O(α(n))。最后又是O((m + n) * α(n))，由于α(n)增长比log*更慢，所以基本非常接近线性复杂度了。</p>
+<h2 id="八卦环节">八卦环节</h2>
+<p>这个老师自己也说这个Tarjan算法分析算是这个领域中的一颗明珠……的确各种匪夷所思，但冥冥中好像就是要定义一个这样的阿克蒙德函数的感觉啊！（至少我的直觉时path compression时每次rank应该不止加1）Tarjan本人也觉得这个东西挺复杂的。既然这么接近线性复杂度，那到底是不是可以做到线性呢？后来到了89年终于有人证明了union-find是没有linear time的算法的！</p>
+<p>Tarjan的原论文<a href="http://e-maxx.ru/bookz/files/dsu/Efficiency%20of%20a%20Good%20But%20Not%20Linear%20Set%20Union%20Algorithm.%20Tarjan.pdf" target="_blank" rel="external">在此</a>。证明无线性时间算法的论文是89年Fredman和Saks的’The Cell Probe Complexity of Dynamic Data Structures’。</p>
+<p>另外这门课也介绍过Tarjan合作写的另一个<a href="https://class.coursera.org/algo-005/lecture/38" target="_blank" rel="external">算法</a>就是找一个无序list中第i大的element。神奇的是这篇牛逼闪闪的<a href="http://people.csail.mit.edu/rivest/pubs/BFPRT73.pdf" target="_blank" rel="external">论文</a>的五个合作者中有四个得过图灵奖……这就是传说中的全明星阵容吧…………</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Python/">Python</a><a href="/tags/Algorithms/">Algorithms</a><a href="/tags/Coursera/">Coursera</a>
+  </div>
+
+</div>
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://zijie0.github.io/2014/08/08/Python-Algorithms---Union-Find/" data-title="Python Algorithms - Union Find | Tada!" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/10/15/Learning-Python/" title="Learning Python">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Learning Python</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/08/04/CSAPP---Buffer-Overflow-Attacks/"  title="CSAPP - Buffer Overflow Attacks">
+ <strong>下一篇：</strong><br/> 
+ <span>CSAPP - Buffer Overflow Attacks
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#算法介绍"><span class="toc-number">1.</span> <span class="toc-text">算法介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复杂度分析"><span class="toc-number">2.</span> <span class="toc-text">复杂度分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#性质与引理"><span class="toc-number">2.1.</span> <span class="toc-text">性质与引理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hopcroft-Ullman_Theorem"><span class="toc-number">2.2.</span> <span class="toc-text">Hopcroft-Ullman Theorem</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tarjan’s_Analysis"><span class="toc-number">2.3.</span> <span class="toc-text">Tarjan’s Analysis</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#八卦环节"><span class="toc-number">3.</span> <span class="toc-text">八卦环节</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/Coursera/" title="Coursera">Coursera<sup>4</sup></a></li>
+		
+			<li><a href="/tags/Python/" title="Python">Python<sup>3</sup></a></li>
+		
+			<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		
+			<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>2</sup></a></li>
+		
+			<li><a href="/tags/Scala/" title="Scala">Scala<sup>1</sup></a></li>
+		
+			<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>1</sup></a></li>
+		
+			<li><a href="/tags/gdb/" title="gdb">gdb<sup>1</sup></a></li>
+		
+			<li><a href="/tags/Performance/" title="Performance">Performance<sup>1</sup></a></li>
+		
+			<li><a href="/tags/SystemTap/" title="SystemTap">SystemTap<sup>1</sup></a></li>
+		
+			<li><a href="/tags/book/" title="book">book<sup>1</sup></a></li>
+		
+			<li><a href="/tags/FP/" title="FP">FP<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">Links</p>
+    <ul>
+      <li><a href="http://csrd.aliapp.com/" target="_blank" title="Ali">阿里核心系统团队博客</a></li>
+      <li><a href="http://kernel.taobao.org/index.php" target="_blank" title="AliKernel">阿里内核组</a></li>
+    </ul>
+</div>
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/010bytes" target="_blank" class="icon-weibo" title="weibo"></a>
+		
+		
+		<a href="https://github.com/zijie0" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/drinkdrink" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		
+		<a href="mailto:myoilbox@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://zespia.tw/hexo/" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Pacman">Jacman</a> © 2015 
+		
+		<a href="http://zijie0.github.io/about" target="_blank" title="Zijie0">Zijie0</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"zijie0"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-51424600-1', 'zijie0.github.io');  
+ga('send', 'pageview');
+</script>
+
+
+
+
+<div id="totop">
+<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+</div>
+
+<script src="/js/totop.js"></script>
+
+
+
+
+  </body>
+</html>

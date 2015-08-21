@@ -1,0 +1,474 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Python Algorithms - Knapsack Problem | Tada!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Zijie0">
+    
+    <meta name="description" itemprop="description" content="Coursera算法课作业中的一道题，经典的背包问题！记录一下算法菜鸟艰辛的优化之路……">
+    
+    
+    
+    
+    <link rel="alternative" href="/atom.xml" title="Tada!" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Tada!" title="Tada!"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Tada!">Tada!</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Main</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="Search" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/07/24/Python-Algorithms---Knapsack-Problem/" title="Python Algorithms - Knapsack Problem" itemprop="url">Python Algorithms - Knapsack Problem</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="http://zijie0.github.io/about" title="Zijie0" target="_blank" itemprop="author">Zijie0</a>
+		
+  <p class="article-time">
+    <time datetime="2014-07-24T08:20:30.000Z" itemprop="datePublished"> Published Jul 24 2014</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			
+		
+		</div>
+		
+		<p>前面两篇都写得很长，然后就导致一个多月都没写新的，有种唱歌调起高了的感觉。以后还是想到什么就记录一下吧，不要搞得太严肃各种有压力啊。</p>
+<p>上周Stanford算法设计与分析课的作业是经典的背包问题，用来练习刚刚习得的Dynamic Programming技能。按照课上老师讲的方法，用Python写一下具体实现，先求解问题，再还原最优解中所有的Item：</p>
+<figure class="highlight Python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">knapsack</span><span class="params">(maxweight, items)</span>:</span></div><div class="line">    bestvalues = [[<span class="number">0</span>] * (maxweight + <span class="number">1</span>)</div><div class="line">                  <span class="keyword">for</span> _ <span class="keyword">in</span> xrange(len(items) + <span class="number">1</span>)]</div><div class="line"> </div><div class="line">    <span class="keyword">for</span> i, (value, weight) <span class="keyword">in</span> enumerate(items):</div><div class="line">        <span class="keyword">for</span> capacity <span class="keyword">in</span> xrange(maxweight + <span class="number">1</span>):</div><div class="line">            <span class="keyword">if</span> weight &gt; capacity:</div><div class="line">                bestvalues[i + <span class="number">1</span>][capacity] = bestvalues[i][capacity]</div><div class="line">            <span class="keyword">else</span>:</div><div class="line">                case1 = bestvalues[i][capacity]</div><div class="line">                case2 = bestvalues[i][capacity - weight] + value</div><div class="line"> </div><div class="line">                bestvalues[i + <span class="number">1</span>][capacity] = max(case1, case2)</div><div class="line"> </div><div class="line">    trackback = []</div><div class="line">    n = len(items)</div><div class="line">    w = maxweight</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(n, <span class="number">0</span>, -<span class="number">1</span>):</div><div class="line">        <span class="keyword">if</span> bestvalues[i][w] != bestvalues[i - <span class="number">1</span>][w]:</div><div class="line">            trackback.append(items[i - <span class="number">1</span>])</div><div class="line">            w -= items[i - <span class="number">1</span>][<span class="number">1</span>]</div><div class="line"> </div><div class="line">    trackback.reverse()</div><div class="line"> </div><div class="line">    <span class="keyword">return</span> bestvalues[len(items)][maxweight], trackback</div></pre></td></tr></table></figure>
+
+
+<p>恩，这个应该大家都很熟悉了，先分割子问题，然后用个二维数组来记录之前求得的结果避免重复计算，这样复杂度是<code>O(nw)</code>。不过这个作业有两问，第二问的数据量一下子大了很多，有2000个item，背包容量达2000000……恩，估计是给奥特曼背的……再用这个程序一跑，很快就出了Memory Error，数组太大啦！</p>
+<p>怎么优化呢？比较自然的想法就是只计算那些有必要计算的子问题，从顶向下来跑，用递归和cache，也是比较好实现的：</p>
+<figure class="highlight Python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">knapsack</span><span class="params">(items, maxweight)</span>:</span></div><div class="line">    </div><div class="line">    <span class="decorator">@memoize</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">bestvalue</span><span class="params">(i, j)</span>:</span></div><div class="line">        <span class="keyword">if</span> i == <span class="number">0</span>: <span class="keyword">return</span> <span class="number">0</span></div><div class="line">        value, weight = items[i - <span class="number">1</span>]</div><div class="line">        <span class="keyword">if</span> weight &gt; j:</div><div class="line">            <span class="keyword">return</span> bestvalue(i - <span class="number">1</span>, j)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">return</span> max(bestvalue(i - <span class="number">1</span>, j),</div><div class="line">                       bestvalue(i - <span class="number">1</span>, j - weight) + value)</div><div class="line"> </div><div class="line">    j = maxweight</div><div class="line">    result = []</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(len(items), <span class="number">0</span>, -<span class="number">1</span>):</div><div class="line">        <span class="keyword">if</span> bestvalue(i, j) != bestvalue(i - <span class="number">1</span>, j):</div><div class="line">            result.append(items[i - <span class="number">1</span>])</div><div class="line">            j -= items[i - <span class="number">1</span>][<span class="number">1</span>]</div><div class="line">    result.reverse()</div><div class="line">    <span class="keyword">return</span> bestvalue(len(items), maxweight)</div></pre></td></tr></table></figure>
+
+
+<p>还尝试了下对我来说很新潮的decorator哈哈！这个东西看起来真是各种专业，感兴趣的同学可以看耗子哥的<a href="http://coolshell.cn/articles/11265.html" target="_blank" rel="external">介绍</a>。下面的代码来自<a href="https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize" target="_blank" rel="external">官方wiki</a>。</p>
+<figure class="highlight Python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">memoize</span><span class="params">(obj)</span>:</span></div><div class="line">    cache = obj.cache = {}</div><div class="line"> </div><div class="line">    <span class="decorator">@functools.wraps(obj)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">memoizer</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">        <span class="keyword">if</span> args <span class="keyword">not</span> <span class="keyword">in</span> cache:</div><div class="line">            cache[args] = obj(*args, **kwargs)</div><div class="line">        <span class="keyword">return</span> cache[args]</div><div class="line">    <span class="keyword">return</span> memoizer</div></pre></td></tr></table></figure>
+
+
+<p>信心满满开始跑大case！然后很快就又报错说递归层数超限制了……好吧，改下限制：</p>
+<figure class="highlight Python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> sys</div><div class="line">sys.setrecursionlimit(<span class="number">3000</span>)</div></pre></td></tr></table></figure>
+
+
+<p>本以为这样搞一下应该瞬间出结果了吧，结果还是跑了近2分钟（110秒）……不过看下总共解的子问题数量已经降到了6227855 / (2000000 * 2000)，也就是原来的0.156%！</p>
+<p>算法课的老师说，我们搞算法，最重要的一个问题就是：“<strong>Can we do better?</strong>” 像我这样的有志青年，怎么能满足于2分钟才能跑出来的结果呢？！！于是我点开课程讨论区，看看大家有没有什么更好的解法……果然！有一位来自大洋彼岸的名叫大卫的同学提出了稀疏Column的解法，其思想就是在原始的子问题矩阵中，其实有很多是重复的值（因为重量往往比较大比较分散，所以很多计算其实都无法加上新item而只是沿用之前的值（而且还得取两个值算一次max呢，感觉很亏！）。所以事实上我们只需要记录在一列中发生数值变化的那几个点就可以了！这样将大大减少计算量以及存储矩阵所需要的空间！</p>
+<p>有了思路就可以来实现了！大致就是轮一遍所有的Item，搞个Hash来存总Value，Key就是当前的总Weight，每到新一个Item的时候取出Hash中所有的Key，然后加上当前轮Item的Weight即为新的发生变化的点，判断下不要超出Max Weight，如果与之前的Key有重合就取比较大的结果，总的来说思路跟原始的bottom-up做法是一样的。代码如下，命名比较乱，而且没有去实现回溯……</p>
+<figure class="highlight Python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">knapsack</span><span class="params">(items, maxweight)</span>:</span></div><div class="line">    <span class="comment"># history = []</span></div><div class="line">    result = {}</div><div class="line">    result[<span class="number">0</span>] = <span class="number">0</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(items)):</div><div class="line">        v, w = items[i]</div><div class="line">        new_res = dict(result)</div><div class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> sorted(result.keys()):</div><div class="line">            <span class="keyword">if</span> c + w &gt; maxweight:</div><div class="line">                <span class="keyword">break</span></div><div class="line">            <span class="keyword">if</span> result.get(c+w):</div><div class="line">                new_res[c+w] = max(result[c+w], result[c] + v)</div><div class="line">            <span class="keyword">else</span>:</div><div class="line">                new_res[c+w] = result[c] + v</div><div class="line">        result = dict(new_res)</div><div class="line">        <span class="comment"># history.append(result)</span></div><div class="line"> </div><div class="line">    <span class="keyword">return</span> result[max(result.keys())]</div></pre></td></tr></table></figure>
+
+
+<p>不过理想是美好的，现实总是残酷的。实现完后一跑就出问题了，跟正确答案总是差那么一点点……是哪里不对了呢？然后自己搞了个小数据量的Case看了下，发现少考虑了一种情况！那就是如果有一个Item的Value很大，Weight也很大（比如正好比一半多一点），当背包里只放它一件物品的时候总Value就超过其它所有物品的Value和了，那么当计算到它时必须把后面比它小的那些Value都给删掉！这样才能确保获得正确答案！这样一来感觉就有点麻烦了啊，还要删掉Value……试了下用数组用哈希都可以，数组的话就是用两组index的数组像merge sort那样分别取Weight出来保证有序，如果比之前的Value小就不写入新result里了。还有就是下面还是用Hash做的方法：</p>
+<figure class="highlight Python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">knapsack</span><span class="params">(items, maxweight)</span>:</span></div><div class="line">    <span class="comment"># history = []</span></div><div class="line">    result = {}</div><div class="line">    result[<span class="number">0</span>] = <span class="number">0</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(items)):</div><div class="line">        v, w = items[i]</div><div class="line">        new_res = {}</div><div class="line">        changed_weight = dict.fromkeys(result.keys(), <span class="number">0</span>)</div><div class="line">        new_weights = dict(changed_weight)</div><div class="line">        <span class="keyword">for</span> k <span class="keyword">in</span> changed_weight:</div><div class="line">            new_weight = k + w</div><div class="line">            <span class="keyword">if</span> new_weight &lt;= maxweight:</div><div class="line">                <span class="keyword">if</span> new_weight <span class="keyword">in</span> changed_weight:</div><div class="line">                    new_weights[new_weight] = <span class="number">1</span></div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    new_weights[new_weight] = -<span class="number">1</span></div><div class="line">        last_val = -<span class="number">1</span></div><div class="line">        <span class="keyword">for</span> (k, c) <span class="keyword">in</span> sorted(new_weights.items(), key=<span class="keyword">lambda</span> x: x[<span class="number">0</span>]):</div><div class="line">            <span class="keyword">if</span> c == <span class="number">0</span>:</div><div class="line">                new_val = result[k]</div><div class="line">            <span class="keyword">elif</span> c == <span class="number">1</span>:</div><div class="line">                new_val = max(result[k], result[k-w] + v)</div><div class="line">            <span class="keyword">else</span>:</div><div class="line">                new_val = result[k-w] + v</div><div class="line">            <span class="keyword">if</span> new_val &gt; last_val:</div><div class="line">                new_res[k] = new_val</div><div class="line">                last_val = new_val</div><div class="line">        result = dict(new_res)</div><div class="line">        <span class="comment"># history.append(result)</span></div><div class="line"> </div><div class="line">    <span class="keyword">return</span> result[max(result.keys())]</div></pre></td></tr></table></figure>
+
+
+<p>哈哈，还是挺有趣的吧！跑了一下大约4.3s完成！速度提升25x！用cProfile, <a href="https://pythonhosted.org/line_profiler/" target="_blank" rel="external">line_profiler</a>, <a href="https://pypi.python.org/pypi/memory_profiler" target="_blank" rel="external">memory_profiler</a>等Python的性能工具对比看了下，这个Sparse Column的实现占用内存大约11.4MB，而Top-down Recursive的实现要占用1159MB！</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="type">Line</span> <span class="comment">#    Mem usage    Increment   Line Contents</span></div><div class="line">================================================</div><div class="line">    <span class="number">12</span>    <span class="number">8</span>.<span class="number">641</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>   @profile</div><div class="line">    <span class="number">13</span>                             def main():</div><div class="line">    <span class="number">14</span>    <span class="number">8</span>.<span class="number">645</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">004</span> <span class="type">MiB</span>       cache = {}</div><div class="line">    <span class="number">15</span>    <span class="number">9</span>.<span class="number">031</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">387</span> <span class="type">MiB</span>       total_weight, total_item, items = generate_items('knapsack_big.txt')</div><div class="line">    <span class="number">16</span>    <span class="number">9</span>.<span class="number">031</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>       def memo(i, j):</div><div class="line">    <span class="number">17</span>                                     <span class="keyword">if</span> (i, j) <span class="keyword">in</span> cache:</div><div class="line">    <span class="number">18</span>                                         <span class="keyword">return</span> cache[(i, j)]</div><div class="line">    <span class="number">19</span>                                     <span class="keyword">if</span> i == <span class="number">0</span>:</div><div class="line">    <span class="number">20</span>                                         <span class="keyword">return</span> <span class="number">0</span></div><div class="line">    <span class="number">21</span>                                     v, w = items[i - <span class="number">1</span>]</div><div class="line">    <span class="number">22</span>                                     <span class="keyword">if</span> j - w &lt; <span class="number">0</span>:</div><div class="line">    <span class="number">23</span>                                         <span class="literal">result</span> = memo(i-<span class="number">1</span>, j)</div><div class="line">    <span class="number">24</span>                                         cache[(i, j)] = <span class="literal">result</span></div><div class="line">    <span class="number">25</span>                                         <span class="keyword">return</span> <span class="literal">result</span></div><div class="line">    <span class="number">26</span>                                     <span class="keyword">else</span>:</div><div class="line">    <span class="number">27</span>                                         <span class="literal">result</span> = max(memo(i-<span class="number">1</span>, j), memo(i-<span class="number">1</span>, j-w) + v)</div><div class="line">    <span class="number">28</span>                                         cache[(i, j)] = <span class="literal">result</span></div><div class="line">    <span class="number">29</span>                                         <span class="keyword">return</span> <span class="literal">result</span></div><div class="line">    <span class="number">30</span></div><div class="line">    <span class="number">31</span> <span class="number">1159</span>.<span class="number">055</span> <span class="type">MiB</span> <span class="number">1150</span>.<span class="number">023</span> <span class="type">MiB</span>       print memo(total_item, total_weight)</div></pre></td></tr></table></figure>
+
+
+<p>Sparse Column的实现只消耗了Top-down实现1%的内存！</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="type">Line</span> <span class="comment">#    Mem usage    Increment   Line Contents</span></div><div class="line">================================================</div><div class="line">     <span class="number">9</span>    <span class="number">9</span>.<span class="number">008</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>   @profile</div><div class="line">    <span class="number">10</span>                             def knapsack(items, maxweight):</div><div class="line">    <span class="number">11</span>                                 <span class="comment">#history = []</span></div><div class="line">    <span class="number">12</span>    <span class="number">9</span>.<span class="number">012</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">004</span> <span class="type">MiB</span>       <span class="literal">result</span> = {}</div><div class="line">    <span class="number">13</span>    <span class="number">9</span>.<span class="number">012</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>       <span class="literal">result</span>[<span class="number">0</span>] = <span class="number">0</span></div><div class="line">    <span class="number">14</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">2</span>.<span class="number">387</span> <span class="type">MiB</span>       <span class="keyword">for</span> i <span class="keyword">in</span> <span class="type">range</span>(len(items)):</div><div class="line">    <span class="number">15</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>           v, w = items[i]</div><div class="line">    <span class="number">16</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>           new_res = {}</div><div class="line">    <span class="number">17</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>           changed_weight = dict((k, <span class="number">0</span>) <span class="keyword">for</span> k <span class="keyword">in</span> <span class="literal">result</span>.keys())</div><div class="line">    <span class="number">18</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>           new_weights = dict(changed_weight)</div><div class="line">    <span class="number">19</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>           <span class="keyword">for</span> k <span class="keyword">in</span> changed_weight:</div><div class="line">    <span class="number">20</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>               new_weight = k + w</div><div class="line">    <span class="number">21</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>               <span class="keyword">if</span> new_weight &lt;= maxweight:</div><div class="line">    <span class="number">22</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>                   <span class="keyword">if</span> new_weight <span class="keyword">in</span> changed_weight:</div><div class="line">    <span class="number">23</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>                       new_weights[new_weight] += <span class="number">1</span></div><div class="line">    <span class="number">24</span>                                             <span class="keyword">else</span>:</div><div class="line">    <span class="number">25</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>                       new_weights[new_weight] = -<span class="number">1</span></div><div class="line">    <span class="number">26</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>           last_val = -<span class="number">1</span></div><div class="line">    <span class="number">27</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>           <span class="keyword">for</span> (k, c) <span class="keyword">in</span> sorted(new_weights.items(), key=lambda x: x[<span class="number">0</span>]):</div><div class="line">    <span class="number">28</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>               <span class="keyword">if</span> c == <span class="number">0</span>:</div><div class="line">    <span class="number">29</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>                   new_val = <span class="literal">result</span>[k]</div><div class="line">    <span class="number">30</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>               <span class="keyword">elif</span> c == <span class="number">1</span>:</div><div class="line">    <span class="number">31</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>                   new_val = max(<span class="literal">result</span>[k], <span class="literal">result</span>[k-w] + v)</div><div class="line">    <span class="number">32</span>                                         <span class="keyword">else</span>:</div><div class="line">    <span class="number">33</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>                   new_val = <span class="literal">result</span>[k-w] + v</div><div class="line">    <span class="number">34</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>               <span class="keyword">if</span> new_val &gt; last_val:</div><div class="line">    <span class="number">35</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>                   new_res[k] = new_val</div><div class="line">    <span class="number">36</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>                   last_val = new_val</div><div class="line">    <span class="number">37</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>           <span class="literal">result</span> = dict(new_res)</div><div class="line">    <span class="number">38</span>                                     <span class="comment">#history.append(result)</span></div><div class="line">    <span class="number">39</span></div><div class="line">    <span class="number">40</span>   <span class="number">11</span>.<span class="number">398</span> <span class="type">MiB</span>    <span class="number">0</span>.<span class="number">000</span> <span class="type">MiB</span>       <span class="keyword">return</span> <span class="literal">result</span>[max(<span class="literal">result</span>.keys())]</div></pre></td></tr></table></figure>
+
+
+<p>无论是运行速度还是内存占用都很有优势啊！（update： 发现是我乌龙了……这个Sparse Column实现并没有储存历史记录，无法回溯，所以才占用这么小……要减少子问题的数量还是得用后面的剪枝啊！） 另外我还发现cProfile之类的工具分析递归好像很困难……在Sparse Column的实现中每次对key的sort挺消耗时间，改成数组的实现还可以快0.5秒以上。一开始在初始化Hash的时候用了个内部循环<code>changed_weight = dict((k, 0) for k in result.keys())</code>，看了下profiling数据：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="type">Line</span> <span class="comment">#      Hits         Time  Per Hit   % Time  Line Contents</span></div><div class="line">==============================================================</div><div class="line">     <span class="number">9</span>                                           @profile</div><div class="line">    <span class="number">10</span>                                           def knapsack(items, maxweight):</div><div class="line">    <span class="number">11</span>                                               <span class="comment">#history = []</span></div><div class="line">    <span class="number">12</span>         <span class="number">1</span>            <span class="number">3</span>      <span class="number">3</span>.<span class="number">0</span>      <span class="number">0</span>.<span class="number">0</span>      <span class="literal">result</span> = {}</div><div class="line">    <span class="number">13</span>         <span class="number">1</span>            <span class="number">2</span>      <span class="number">2</span>.<span class="number">0</span>      <span class="number">0</span>.<span class="number">0</span>      <span class="literal">result</span>[<span class="number">0</span>] = <span class="number">0</span></div><div class="line">    <span class="number">14</span>      <span class="number">2001</span>         <span class="number">3032</span>      <span class="number">1</span>.<span class="number">5</span>      <span class="number">0</span>.<span class="number">0</span>      <span class="keyword">for</span> i <span class="keyword">in</span> <span class="type">range</span>(len(items)):</div><div class="line">    <span class="number">15</span>      <span class="number">2000</span>         <span class="number">3375</span>      <span class="number">1</span>.<span class="number">7</span>      <span class="number">0</span>.<span class="number">0</span>          v, w = items[i]</div><div class="line">    <span class="number">16</span>      <span class="number">2000</span>        <span class="number">23585</span>     <span class="number">11</span>.<span class="number">8</span>      <span class="number">0</span>.<span class="number">1</span>          new_res = {}</div><div class="line">    <span class="number">17</span>      <span class="number">2000</span>       <span class="number">926182</span>    <span class="number">463</span>.<span class="number">1</span>      <span class="number">2</span>.<span class="number">9</span>          changed_weight = dict((k, <span class="number">0</span>) <span class="keyword">for</span> k <span class="keyword">in</span> <span class="literal">result</span>.keys())</div><div class="line">    <span class="number">18</span>      <span class="number">2000</span>       <span class="number">111575</span>     <span class="number">55</span>.<span class="number">8</span>      <span class="number">0</span>.<span class="number">3</span>          new_weights = dict(changed_weight)</div><div class="line">    <span class="number">19</span>   <span class="number">1663355</span>      <span class="number">1963616</span>      <span class="number">1</span>.<span class="number">2</span>      <span class="number">6</span>.<span class="number">1</span>          <span class="keyword">for</span> k <span class="keyword">in</span> changed_weight:</div><div class="line">    <span class="number">20</span>   <span class="number">1661355</span>      <span class="number">2033315</span>      <span class="number">1</span>.<span class="number">2</span>      <span class="number">6</span>.<span class="number">3</span>              new_weight = k + w</div><div class="line">    <span class="number">21</span>   <span class="number">1661355</span>      <span class="number">1958858</span>      <span class="number">1</span>.<span class="number">2</span>      <span class="number">6</span>.<span class="number">1</span>              <span class="keyword">if</span> new_weight &lt;= maxweight:</div><div class="line">    <span class="number">22</span>   <span class="number">1279701</span>      <span class="number">1591834</span>      <span class="number">1</span>.<span class="number">2</span>      <span class="number">5</span>.<span class="number">0</span>                  <span class="keyword">if</span> new_weight <span class="keyword">in</span> changed_weight:</div><div class="line">    <span class="number">23</span>    <span class="number">254768</span>       <span class="number">368270</span>      <span class="number">1</span>.<span class="number">4</span>      <span class="number">1</span>.<span class="number">1</span>                      new_weights[new_weight] += <span class="number">1</span></div><div class="line">    <span class="number">24</span>                                                           <span class="keyword">else</span>:</div><div class="line">    <span class="number">25</span>   <span class="number">1024933</span>      <span class="number">1316114</span>      <span class="number">1</span>.<span class="number">3</span>      <span class="number">4</span>.<span class="number">1</span>                      new_weights[new_weight] = -<span class="number">1</span></div><div class="line">    <span class="number">26</span>      <span class="number">2000</span>         <span class="number">2371</span>      <span class="number">1</span>.<span class="number">2</span>      <span class="number">0</span>.<span class="number">0</span>          last_val = -<span class="number">1</span></div><div class="line">    <span class="number">27</span>   <span class="number">2688288</span>      <span class="number">5822873</span>      <span class="number">2</span>.<span class="number">2</span>     <span class="number">18</span>.<span class="number">2</span>          <span class="keyword">for</span> (k, c) <span class="keyword">in</span> sorted(new_weights.items(), key=lambda x: x[<span class="number">0</span>]):</div><div class="line">    <span class="number">28</span>   <span class="number">2686288</span>      <span class="number">3260883</span>      <span class="number">1</span>.<span class="number">2</span>     <span class="number">10</span>.<span class="number">2</span>              <span class="keyword">if</span> c == <span class="number">0</span>:</div><div class="line">    <span class="number">29</span>   <span class="number">1406587</span>      <span class="number">1813914</span>      <span class="number">1</span>.<span class="number">3</span>      <span class="number">5</span>.<span class="number">7</span>                  new_val = <span class="literal">result</span>[k]</div><div class="line">    <span class="number">30</span>   <span class="number">1279701</span>      <span class="number">1525904</span>      <span class="number">1</span>.<span class="number">2</span>      <span class="number">4</span>.<span class="number">8</span>              <span class="keyword">elif</span> c == <span class="number">1</span>:</div><div class="line">    <span class="number">31</span>    <span class="number">254768</span>       <span class="number">455276</span>      <span class="number">1</span>.<span class="number">8</span>      <span class="number">1</span>.<span class="number">4</span>                  new_val = max(<span class="literal">result</span>[k], <span class="literal">result</span>[k-w] + v)</div><div class="line">    <span class="number">32</span>                                                       <span class="keyword">else</span>:</div><div class="line">    <span class="number">33</span>   <span class="number">1024933</span>      <span class="number">1419824</span>      <span class="number">1</span>.<span class="number">4</span>      <span class="number">4</span>.<span class="number">4</span>                  new_val = <span class="literal">result</span>[k-w] + v</div><div class="line">    <span class="number">34</span>   <span class="number">2686288</span>      <span class="number">3245556</span>      <span class="number">1</span>.<span class="number">2</span>     <span class="number">10</span>.<span class="number">1</span>              <span class="keyword">if</span> new_val &gt; last_val:</div><div class="line">    <span class="number">35</span>   <span class="number">1662811</span>      <span class="number">2142042</span>      <span class="number">1</span>.<span class="number">3</span>      <span class="number">6</span>.<span class="number">7</span>                  new_res[k] = new_val</div><div class="line">    <span class="number">36</span>   <span class="number">1662811</span>      <span class="number">1991281</span>      <span class="number">1</span>.<span class="number">2</span>      <span class="number">6</span>.<span class="number">2</span>                  last_val = new_val</div><div class="line">    <span class="number">37</span>      <span class="number">2000</span>        <span class="number">98447</span>     <span class="number">49</span>.<span class="number">2</span>      <span class="number">0</span>.<span class="number">3</span>          <span class="literal">result</span> = dict(new_res)</div><div class="line">    <span class="number">38</span>                                                   <span class="comment">#history.append(result)</span></div><div class="line">    <span class="number">39</span></div><div class="line">    <span class="number">40</span>         <span class="number">1</span>           <span class="number">63</span>     <span class="number">63</span>.<span class="number">0</span>      <span class="number">0</span>.<span class="number">0</span>      <span class="keyword">return</span> <span class="literal">result</span>[max(<span class="literal">result</span>.keys())]</div></pre></td></tr></table></figure>
+
+
+<p>可以看到17行这个Hash初始化的per hit time高居榜首！我们改一下实现变成<code>changed_weight = dict.fromkeys(result.keys(), 0)</code>：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="type">Line</span> <span class="comment">#      Hits         Time  Per Hit   % Time  Line Contents</span></div><div class="line">==============================================================</div><div class="line">     <span class="number">9</span>                                           @profile</div><div class="line">    <span class="number">10</span>                                           def knapsack(items, maxweight):</div><div class="line">    <span class="number">11</span>                                               <span class="comment">#history = []</span></div><div class="line">    <span class="number">12</span>         <span class="number">1</span>            <span class="number">5</span>      <span class="number">5</span>.<span class="number">0</span>      <span class="number">0</span>.<span class="number">0</span>      <span class="literal">result</span> = {}</div><div class="line">    <span class="number">13</span>         <span class="number">1</span>            <span class="number">2</span>      <span class="number">2</span>.<span class="number">0</span>      <span class="number">0</span>.<span class="number">0</span>      <span class="literal">result</span>[<span class="number">0</span>] = <span class="number">0</span></div><div class="line">    <span class="number">14</span>      <span class="number">2001</span>         <span class="number">3095</span>      <span class="number">1</span>.<span class="number">5</span>      <span class="number">0</span>.<span class="number">0</span>      <span class="keyword">for</span> i <span class="keyword">in</span> <span class="type">range</span>(len(items)):</div><div class="line">    <span class="number">15</span>      <span class="number">2000</span>         <span class="number">3313</span>      <span class="number">1</span>.<span class="number">7</span>      <span class="number">0</span>.<span class="number">0</span>          v, w = items[i]</div><div class="line">    <span class="number">16</span>      <span class="number">2000</span>        <span class="number">25807</span>     <span class="number">12</span>.<span class="number">9</span>      <span class="number">0</span>.<span class="number">1</span>          new_res = {}</div><div class="line">    <span class="number">17</span>      <span class="number">2000</span>       <span class="number">154480</span>     <span class="number">77</span>.<span class="number">2</span>      <span class="number">0</span>.<span class="number">5</span>          changed_weight = dict.fromkeys(<span class="literal">result</span>.keys(), <span class="number">0</span>)</div><div class="line">    <span class="number">18</span>      <span class="number">2000</span>       <span class="number">125462</span>     <span class="number">62</span>.<span class="number">7</span>      <span class="number">0</span>.<span class="number">4</span>          new_weights = dict(changed_weight)</div><div class="line">    <span class="number">19</span>   <span class="number">1663355</span>      <span class="number">1756998</span>      <span class="number">1</span>.<span class="number">1</span>      <span class="number">6</span>.<span class="number">1</span>          <span class="keyword">for</span> k <span class="keyword">in</span> changed_weight:</div><div class="line">    <span class="number">20</span>   <span class="number">1661355</span>      <span class="number">1807104</span>      <span class="number">1</span>.<span class="number">1</span>      <span class="number">6</span>.<span class="number">2</span>              new_weight = k + w</div><div class="line">    <span class="number">21</span>   <span class="number">1661355</span>      <span class="number">1739799</span>      <span class="number">1</span>.<span class="number">0</span>      <span class="number">6</span>.<span class="number">0</span>              <span class="keyword">if</span> new_weight &lt;= maxweight:</div><div class="line">    <span class="number">22</span>   <span class="number">1279701</span>      <span class="number">1444483</span>      <span class="number">1</span>.<span class="number">1</span>      <span class="number">5</span>.<span class="number">0</span>                  <span class="keyword">if</span> new_weight <span class="keyword">in</span> changed_weight:</div><div class="line">    <span class="number">23</span>    <span class="number">254768</span>       <span class="number">355288</span>      <span class="number">1</span>.<span class="number">4</span>      <span class="number">1</span>.<span class="number">2</span>                      new_weights[new_weight] += <span class="number">1</span></div><div class="line">    <span class="number">24</span>                                                           <span class="keyword">else</span>:</div><div class="line">    <span class="number">25</span>   <span class="number">1024933</span>      <span class="number">1188602</span>      <span class="number">1</span>.<span class="number">2</span>      <span class="number">4</span>.<span class="number">1</span>                      new_weights[new_weight] = -<span class="number">1</span></div><div class="line">    <span class="number">26</span>      <span class="number">2000</span>         <span class="number">2112</span>      <span class="number">1</span>.<span class="number">1</span>      <span class="number">0</span>.<span class="number">0</span>          last_val = -<span class="number">1</span></div><div class="line">    <span class="number">27</span>   <span class="number">2688288</span>      <span class="number">5982674</span>      <span class="number">2</span>.<span class="number">2</span>     <span class="number">20</span>.<span class="number">6</span>          <span class="keyword">for</span> (k, c) <span class="keyword">in</span> sorted(new_weights.items(), key=lambda x: x[<span class="number">0</span>]):</div><div class="line">    <span class="number">28</span>   <span class="number">2686288</span>      <span class="number">2859058</span>      <span class="number">1</span>.<span class="number">1</span>      <span class="number">9</span>.<span class="number">9</span>              <span class="keyword">if</span> c == <span class="number">0</span>:</div><div class="line">    <span class="number">29</span>   <span class="number">1406587</span>      <span class="number">1687684</span>      <span class="number">1</span>.<span class="number">2</span>      <span class="number">5</span>.<span class="number">8</span>                  new_val = <span class="literal">result</span>[k]</div><div class="line">    <span class="number">30</span>   <span class="number">1279701</span>      <span class="number">1332986</span>      <span class="number">1</span>.<span class="number">0</span>      <span class="number">4</span>.<span class="number">6</span>              <span class="keyword">elif</span> c == <span class="number">1</span>:</div><div class="line">    <span class="number">31</span>    <span class="number">254768</span>       <span class="number">504591</span>      <span class="number">2</span>.<span class="number">0</span>      <span class="number">1</span>.<span class="number">7</span>                  new_val = max(<span class="literal">result</span>[k], <span class="literal">result</span>[k-w] + v)</div><div class="line">    <span class="number">32</span>                                                       <span class="keyword">else</span>:</div><div class="line">    <span class="number">33</span>   <span class="number">1024933</span>      <span class="number">1354702</span>      <span class="number">1</span>.<span class="number">3</span>      <span class="number">4</span>.<span class="number">7</span>                  new_val = <span class="literal">result</span>[k-w] + v</div><div class="line">    <span class="number">34</span>   <span class="number">2686288</span>      <span class="number">2870422</span>      <span class="number">1</span>.<span class="number">1</span>      <span class="number">9</span>.<span class="number">9</span>              <span class="keyword">if</span> new_val &gt; last_val:</div><div class="line">    <span class="number">35</span>   <span class="number">1662811</span>      <span class="number">1957315</span>      <span class="number">1</span>.<span class="number">2</span>      <span class="number">6</span>.<span class="number">7</span>                  new_res[k] = new_val</div><div class="line">    <span class="number">36</span>   <span class="number">1662811</span>      <span class="number">1739647</span>      <span class="number">1</span>.<span class="number">0</span>      <span class="number">6</span>.<span class="number">0</span>                  last_val = new_val</div><div class="line">    <span class="number">37</span>      <span class="number">2000</span>       <span class="number">124322</span>     <span class="number">62</span>.<span class="number">2</span>      <span class="number">0</span>.<span class="number">4</span>          <span class="literal">result</span> = dict(new_res)</div><div class="line">    <span class="number">38</span>                                                   <span class="comment">#history.append(result)</span></div><div class="line">    <span class="number">39</span>         <span class="number">1</span>           <span class="number">63</span>     <span class="number">63</span>.<span class="number">0</span>      <span class="number">0</span>.<span class="number">0</span>      <span class="keyword">return</span> <span class="literal">result</span>[max(<span class="literal">result</span>.keys())]</div></pre></td></tr></table></figure>
+
+
+<p>效果相当明显啊！从400多降到了77微秒！</p>
+<p>另外Python里也可以追踪object的数量，做引用分析之类，鉴于这只是个小脚本……就随便看下效果吧：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">(<span class="type">Pdb</span>) <span class="keyword">import</span> objgraph</div><div class="line">(<span class="type">Pdb</span>) objgraph.show_growth()</div><div class="line">list                           <span class="number">2195</span>     +<span class="number">2195</span></div><div class="line">function                       <span class="number">1242</span>     +<span class="number">1242</span></div><div class="line">wrapper_descriptor             <span class="number">1046</span>     +<span class="number">1046</span></div><div class="line">builtin_function_or_method      <span class="number">685</span>      +<span class="number">685</span></div><div class="line">method_descriptor               <span class="number">537</span>      +<span class="number">537</span></div><div class="line">dict                            <span class="number">470</span>      +<span class="number">470</span></div><div class="line">weakref                         <span class="number">428</span>      +<span class="number">428</span></div><div class="line"><span class="keyword">tuple</span>                           <span class="number">396</span>      +<span class="number">396</span></div><div class="line">member_descriptor               <span class="number">193</span>      +<span class="number">193</span></div><div class="line">getset_descriptor               <span class="number">183</span>      +<span class="number">183</span></div><div class="line">(<span class="type">Pdb</span>) objgraph.show_backrefs([<span class="literal">result</span>], filename=<span class="string">"/Users/Bytes/backrefs.png"</span>)</div></pre></td></tr></table></figure>
+
+
+<p>Profiling工具还是相当丰富的嘛！不知道虚拟机，GC什么的能不能像JVM那样细致观察调优……</p>
+<p>性能优化工作到这里这还没结束。继续尝试了下剪枝，发现这个数据sample还是效果挺明显的！首先用 <code>Value / Weight</code> 对所有Item进行排序，然后在运算过程中看一下剩下的背包空间再去乘这个比例还会不会有1以上的总Value提升。如果没有的话那之后的所有Item都是小于这个单位重量的价值的，就没有必要继续了。只需要加一个sort和两行判断：</p>
+<figure class="highlight Python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">generate_items</span><span class="params">(filename)</span>:</span></div><div class="line">    <span class="keyword">with</span> open(filename) <span class="keyword">as</span> f:</div><div class="line">        total_weight, total_item = [int(x) <span class="keyword">for</span> x <span class="keyword">in</span> f.readline().strip().split()]</div><div class="line">        items = []</div><div class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> f:</div><div class="line">            items.append([int(x) <span class="keyword">for</span> x <span class="keyword">in</span> line.strip().split()])</div><div class="line">        <span class="comment"># Sort the items by value / weight</span></div><div class="line">        sorted_items = sorted(items, key=<span class="keyword">lambda</span> x: x[<span class="number">0</span>] / x[<span class="number">1</span>], reverse=<span class="keyword">True</span>)</div><div class="line">    <span class="keyword">return</span> total_weight, sorted_items</div></pre></td></tr></table></figure>
+
+
+<p>剪枝：</p>
+<figure class="highlight Python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">curr_max_weight = max(result.keys())</div><div class="line"><span class="keyword">if</span> (maxweight - curr_max_weight) * v / w &lt; <span class="number">1</span>: <span class="keyword">break</span></div><div class="line">...</div></pre></td></tr></table></figure>
+
+
+<p>这样搞完之后，只需要0.4秒就跑完了！性能提升275x！当然有这么大的效果也是因为数据比较特别，如果所有物品的这个比率都比较接近，加这些判断就反而会拖累运行速度了……所以要具体案例具体分析。</p>
+<p>恩，总结一下，性能优化很有趣，上课做作业有人讨论问题的感觉真好哈哈！</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Python/">Python</a><a href="/tags/Algorithms/">Algorithms</a><a href="/tags/Performance/">Performance</a><a href="/tags/Coursera/">Coursera</a>
+  </div>
+
+</div>
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://zijie0.github.io/2014/07/24/Python-Algorithms---Knapsack-Problem/" data-title="Python Algorithms - Knapsack Problem | Tada!" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/08/04/CSAPP---Buffer-Overflow-Attacks/" title="CSAPP - Buffer Overflow Attacks">
+  <strong>上一篇：</strong><br/>
+  <span>
+  CSAPP - Buffer Overflow Attacks</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/06/13/Learning-Scala/"  title="Learning Scala">
+ <strong>下一篇：</strong><br/> 
+ <span>Learning Scala
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ 
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/Coursera/" title="Coursera">Coursera<sup>4</sup></a></li>
+		
+			<li><a href="/tags/Python/" title="Python">Python<sup>3</sup></a></li>
+		
+			<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		
+			<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>2</sup></a></li>
+		
+			<li><a href="/tags/Scala/" title="Scala">Scala<sup>1</sup></a></li>
+		
+			<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>1</sup></a></li>
+		
+			<li><a href="/tags/gdb/" title="gdb">gdb<sup>1</sup></a></li>
+		
+			<li><a href="/tags/Performance/" title="Performance">Performance<sup>1</sup></a></li>
+		
+			<li><a href="/tags/SystemTap/" title="SystemTap">SystemTap<sup>1</sup></a></li>
+		
+			<li><a href="/tags/book/" title="book">book<sup>1</sup></a></li>
+		
+			<li><a href="/tags/FP/" title="FP">FP<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">Links</p>
+    <ul>
+      <li><a href="http://csrd.aliapp.com/" target="_blank" title="Ali">阿里核心系统团队博客</a></li>
+      <li><a href="http://kernel.taobao.org/index.php" target="_blank" title="AliKernel">阿里内核组</a></li>
+    </ul>
+</div>
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/010bytes" target="_blank" class="icon-weibo" title="weibo"></a>
+		
+		
+		<a href="https://github.com/zijie0" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/drinkdrink" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		
+		<a href="mailto:myoilbox@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://zespia.tw/hexo/" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Pacman">Jacman</a> © 2015 
+		
+		<a href="http://zijie0.github.io/about" target="_blank" title="Zijie0">Zijie0</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"zijie0"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-51424600-1', 'zijie0.github.io');  
+ga('send', 'pageview');
+</script>
+
+
+
+
+<div id="totop">
+<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+</div>
+
+<script src="/js/totop.js"></script>
+
+
+
+
+  </body>
+</html>

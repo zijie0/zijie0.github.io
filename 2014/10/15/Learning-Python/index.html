@@ -1,0 +1,423 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Learning Python | Tada!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Zijie0">
+    
+    <meta name="description" itemprop="description" content="个人Python学习经验。">
+    
+    
+    
+    
+    <link rel="alternative" href="/atom.xml" title="Tada!" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Tada!" title="Tada!"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Tada!">Tada!</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Main</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" name="q" maxlength="20" placeholder="Search" />
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/10/15/Learning-Python/" title="Learning Python" itemprop="url">Learning Python</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="http://zijie0.github.io/about" title="Zijie0" target="_blank" itemprop="author">Zijie0</a>
+		
+  <p class="article-time">
+    <time datetime="2014-10-15T06:35:22.000Z" itemprop="datePublished"> Published Oct 15 2014</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			
+		
+		</div>
+		
+		<p>前几天发了条长微博介绍Python学习经验，顺便整理下同步到博客上来略微提高下活跃度……</p>
+<p>作为一名纠结的Ruby粉丝，曾经在网上搜索了无数次<strong>Ruby vs Python</strong>的各类探讨话题，甚至还蛋疼地去查两者的<a href="http://benchmarksgame.alioth.debian.org/u64q/benchmark.php?test=all&amp;lang=python3&amp;lang2=yarv&amp;data=u64q" target="_blank" rel="external">性能比较数据</a>。有这点闲功夫真该多刷几门Coursera学点真本领啊……后来由于工作需要基本就全面投入了Python的怀抱，而且Python的确比Ruby流行许多，很值得向有志于从事IT行业的同学们推荐！以下就是我的一些学习经验：</p>
+<p>首先还是推荐一下编辑器。一开始学习不需要写大项目，完全可以用print大法来调试，用简单迅捷的<strong>Sublime Text 2/3</strong>就基本可以了。该有的功能基本都有，基本的跳转也很方便，各种定制可以把编辑器搞得非常漂亮！后面如果想要完整的IDE必须首推<strong>PyCharm</strong>！输入提示更强大，跳转更方便，还有PEP8拼写检查等各种利器，整合各种源码管理系统，用过都说好啊！此外用<strong>IPython</strong>替代自带的REPL也是相当舒适……在交互调试时按tab键会有自动补全，还有各种session保存恢复功能，调试服务器之类的很给力！</p>
+<p>一开始学Python语法入门，可以看Coursera的<a href="https://www.coursera.org/course/pythonlearn" target="_blank" rel="external">这个课程</a>。非常简单，讲的也很好……适合没什么基础的同学。美中不足的是做作业的网站需要翻墙……另外还有一个很好的选择是<a href="http://www.codecademy.com/zh/tracks/python" target="_blank" rel="external">Codecademy</a>，交互式学习趣味性十足，也是面向零基础的同学的。像Python这么贴近自然语言的语法和关键词，应该入门都是分分钟的事情了……</p>
+<p>会了语法之后就需要进行实践。个人觉得可以自己动手尝试用Python去实现一些算法，比如quicksort，二分查找之类的。写完之后可以去搜索一下网上别人的实现，因为如果你用惯了C／Java之类的话其实有很多更简洁的惯用表达不一定能直接想到。很多时候学习一门新的语言就是要学习它的惯用表达方式啊。用写算法实现来做练习一来代码量不大，能带你熟悉各种Python标准库里的东西，而且还能顺便把算法也练了，一举两得！搜别人算法实现时经常会搜到<a href="http://rosettacode.org/wiki/Longest_common_subsequence" target="_blank" rel="external">这个站</a>，感觉挺不错的……上面那个链接就是寻找LCS的算法实现，既有递归又有动态规划的范例，相当完备实用。另外还有本书叫<a href="http://book.douban.com/subject/4915945/" target="_blank" rel="external">Python Algorithms</a>，据说写的相当好，可以顺带一起读读。自从学了Python，我在Coursera上课时只要没有要求编程语言的作业就基本都用它来写了，20来行就能写个Page Rank算法，实在太方便……</p>
+<p>接下来就比较自由了，可以尽量在平时工作中把Python用起来，或者自己去写一个小项目……无奈我好像在这方面很缺乏创意，好像写的“小项目”都是“计算10级黑鸟买回魔与买能量球所产生的额外法球攻击次数的期望值”之类……所以一般也就是在工作中用它来处理处理日志，写写自动化测试之类。写完之后也同样可以去找找开源的项目对比下同样的功能它们会怎么实现。据说有几个不错的Python开源项目值得学习：<a href="https://github.com/mitsuhiko/flask" target="_blank" rel="external">flask</a>, <a href="https://github.com/kennethreitz/requests" target="_blank" rel="external">requests</a>（一万多颗星……恐怖）, <a href="https://github.com/webpy/webpy" target="_blank" rel="external">web.py</a>, <a href="https://github.com/fabric/fabric" target="_blank" rel="external">fabric</a>……牛人的话就可以直接参与感兴趣的开源项目了！看issue，提pr，经验值蹭蹭蹭的。本菜鸟最近在学习传说中高大上的自动化测试项目<a href="https://github.com/autotest/autotest" target="_blank" rel="external">autotest</a>，还不怎么得要领的样子……</p>
+<p>关于Python的书和文章有很多 入门的我只看了<a href="http://book.douban.com/subject/4866934/" target="_blank" rel="external">Python基础教程</a>，感觉中规中矩没什么特别深刻的印象。然后最近看了<a href="http://book.douban.com/subject/25910544/" target="_blank" rel="external">编写高质量代码：改善Python程序的91个建议</a>这本书，还是不错的！虽然很多印刷错误（可能编辑不知道缩进对Python代码会有很大影响），元编程那部分没有什么特别透彻的解释，但是其它部分比如讲Python设计模式，工具链，测试驱动开发，各种Profiler的介绍，常见库的使用等内容看看还是很有帮助的！与此类似的还有<a href="https://github.com/qyuhen/book" target="_blank" rel="external">雨痕的书</a>，Dongweiming在douban的<a href="http://www.dongwm.com/archives/fen-xiang-%5B%3F%5D-ge-zhun-bei-gei-gong-si-jiang-pythongao-ji-bian-cheng-de-slide/" target="_blank" rel="external">讲座</a>，这些资料涵盖了很多常用的Python高级主题如描述符，生成器，装饰器等，对阅读理解开源代码，提高自身逼格都很有益处，非常值得推荐！</p>
+<p>Python的应用实在是极其广泛……作为Ruby粉丝，我一直都觉得Python的各种下划线看起来很难看难懂……还有什么新式类／经典类，string／unicode的区别，__getattr__／__getattribute__／getattr的不同都让人感觉“意外”，但人家的流行程度就是甩了Ruby好几条街啊！这里有一篇<a href="http://codeblog.dhananjaynene.com/2010/01/dynamically-adding-methods-with-metaprogramming-ruby-and-python/" target="_blank" rel="external">文章</a>很好地比较了下这两种语言在元编程上的不同之处，当然虽然Python的双下划线难看，但在实际工作中的确很少用到元编程，不好维护啊。关于Python无比广泛的应用，感兴趣的可以看一些相关的书和资料，常规点的应用有Web开发（Django, Flask, Pyramid），<a href="http://book.douban.com/subject/4031965/" target="_blank" rel="external">系统管理</a>之类，这些Ruby可能还可以一战，不过其它方面就……比如安全就是Python应用一大领域，很多黑客都非常喜欢用Python，于是就有了很多相关的库，进而就有了很多相关的项目……如Fuzz框架如<a href="https://wiki.mozilla.org/Security/Fuzzing/Peach" target="_blank" rel="external">Peach</a>，还有逆向框架<a href="https://github.com/OpenRCE/paimei" target="_blank" rel="external">白眉</a>等等。这本<a href="http://book.douban.com/subject/6025284/" target="_blank" rel="external">Python灰帽子</a>这本书中也有不少介绍。我在上Stanford Crypto的课时基本都默认你用Python写破解脚本的。Python在科学计算方面也有很多应用，比如SciPy／NumPy，可以看看这本两本<a href="http://book.douban.com/subject/10561724/" target="_blank" rel="external">SciPy and NumPy</a>和<a href="http://book.douban.com/subject/25779298/" target="_blank" rel="external">利用Python进行数据分析</a>。还有高大上的<a href="http://book.douban.com/subject/24669811/" target="_blank" rel="external">机器学习</a>，<a href="http://book.douban.com/subject/5336893/" target="_blank" rel="external">自然语言处理</a>。还有很多超乎想象的应用，比如<a href="http://book.douban.com/subject/20773481/" target="_blank" rel="external">真实世界的Python仪器监控</a>，当年搞蓝牙时还借来看了一阵……分分钟实现物联网啊！甚至<a href="http://book.douban.com/subject/2123546/" target="_blank" rel="external">游戏开发</a>，<a href="http://book.douban.com/subject/10574101/" target="_blank" rel="external">机器视觉</a>这种竟然也都惨遭染指……真有种学好Python走遍天下都不怕的感觉了。</p>
+<p>如果大家有什么好的Python学习资源，学习经验欢迎推荐交流！让我们共同进步！</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Python/">Python</a>
+  </div>
+
+</div>
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://zijie0.github.io/2014/10/15/Learning-Python/" data-title="Learning Python | Tada!" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/08/20/ReadingList/" title="Reading List 2015">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Reading List 2015</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/08/08/Python-Algorithms---Union-Find/"  title="Python Algorithms - Union Find">
+ <strong>下一篇：</strong><br/> 
+ <span>Python Algorithms - Union Find
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+ 
+ 
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/Coursera/" title="Coursera">Coursera<sup>4</sup></a></li>
+		
+			<li><a href="/tags/Python/" title="Python">Python<sup>3</sup></a></li>
+		
+			<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		
+			<li><a href="/tags/Algorithms/" title="Algorithms">Algorithms<sup>2</sup></a></li>
+		
+			<li><a href="/tags/Scala/" title="Scala">Scala<sup>1</sup></a></li>
+		
+			<li><a href="/tags/Assembly/" title="Assembly">Assembly<sup>1</sup></a></li>
+		
+			<li><a href="/tags/gdb/" title="gdb">gdb<sup>1</sup></a></li>
+		
+			<li><a href="/tags/Performance/" title="Performance">Performance<sup>1</sup></a></li>
+		
+			<li><a href="/tags/SystemTap/" title="SystemTap">SystemTap<sup>1</sup></a></li>
+		
+			<li><a href="/tags/book/" title="book">book<sup>1</sup></a></li>
+		
+			<li><a href="/tags/FP/" title="FP">FP<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">Links</p>
+    <ul>
+      <li><a href="http://csrd.aliapp.com/" target="_blank" title="Ali">阿里核心系统团队博客</a></li>
+      <li><a href="http://kernel.taobao.org/index.php" target="_blank" title="AliKernel">阿里内核组</a></li>
+    </ul>
+</div>
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/010bytes" target="_blank" class="icon-weibo" title="weibo"></a>
+		
+		
+		<a href="https://github.com/zijie0" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/drinkdrink" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		
+		<a href="mailto:myoilbox@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://zespia.tw/hexo/" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Pacman">Jacman</a> © 2015 
+		
+		<a href="http://zijie0.github.io/about" target="_blank" title="Zijie0">Zijie0</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"zijie0"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-51424600-1', 'zijie0.github.io');  
+ga('send', 'pageview');
+</script>
+
+
+
+
+<div id="totop">
+<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+</div>
+
+<script src="/js/totop.js"></script>
+
+
+
+
+  </body>
+</html>
